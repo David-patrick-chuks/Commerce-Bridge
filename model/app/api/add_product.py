@@ -5,12 +5,16 @@ from app.core.db import get_products_collection
 from app.core.clip_utils import image_to_embedding
 from app.core.schemas import ErrorResponse
 from app.worker import celery_app
+from app.tasks.product_tasks import add_product_task
 import hashlib
 import io
 from PIL import Image
 import cloudinary
 import cloudinary.uploader
 import os
+import json
+import time
+import redis
 
 # Cloudinary config
 cloudinary.config(
@@ -21,63 +25,12 @@ cloudinary.config(
 
 router = APIRouter()
 
-@celery_app.task
-def add_product_task(images_data, name, price, description, category):
-    from app.core.db import get_products_collection
-    from app.core.clip_utils import image_to_embedding
-    import hashlib
-    import io
-    from PIL import Image
-    import cloudinary
-    import cloudinary.uploader
-    products_col = get_products_collection()
-    image_urls = []
-    image_hashes = []
-    embeddings = []
-    duplicates = 0
-    errors = 0
-    error_details = []
-    for image_bytes in images_data:
-        try:
-            sha256 = hashlib.sha256(image_bytes).hexdigest()
-            if products_col.find_one({"image_hashes": sha256}):
-                duplicates += 1
-                continue
-            pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-            embedding = image_to_embedding(pil_image)
-            upload_result = cloudinary.uploader.upload(io.BytesIO(image_bytes), folder="clip-products")
-            image_url = upload_result["secure_url"]
-            image_urls.append(image_url)
-            image_hashes.append(sha256)
-            embeddings.append(embedding)
-        except Exception as e:
-            errors += 1
-            error_details.append(str(e))
-    if len(image_urls) == 0:
-        return {
-            "status": "duplicate",
-            "added": 0,
-            "duplicates": duplicates,
-            "errors": errors,
-            "error_details": error_details
-        }
-    product_doc = {
-        "name": name,
-        "price": price,
-        "description": description,
-        "category": category,
-        "image_urls": image_urls,
-        "image_hashes": image_hashes,
-        "embeddings": embeddings,
-    }
-    products_col.insert_one(product_doc)
-    return {
-        "status": "success",
-        "added": 1,
-        "duplicates": duplicates,
-        "errors": errors,
-        "error_details": error_details
-    }
+# Connect to Redis for progress tracking
+try:
+    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_client.ping()
+except Exception as e:
+    redis_client = None
 
 @router.post(
     "/add_product",
@@ -116,4 +69,34 @@ def get_add_product_job(job_id: str):
     elif res.state == "FAILURE":
         return {"job_id": job_id, "status": "failed", "error": str(res.info)}
     else:
-        return {"job_id": job_id, "status": res.state.lower()} 
+        return {"job_id": job_id, "status": res.state.lower()}
+
+@router.get("/add_product/progress/{job_id}", tags=["Products"], summary="Get add product job progress")
+def get_add_product_progress(job_id: str):
+    """Get real-time progress for an add product job"""
+    try:
+        if redis_client:
+            progress_data = redis_client.get(f"progress:{job_id}")
+            if progress_data:
+                progress = json.loads(progress_data)
+                return {
+                    "job_id": job_id,
+                    "progress": progress["progress"],
+                    "message": progress["message"],
+                    "timestamp": progress["timestamp"]
+                }
+        
+        # Fallback to job status if no progress data
+        res = celery_app.AsyncResult(job_id)
+        if res.state == "PENDING":
+            return {"job_id": job_id, "progress": 0, "message": "Job queued", "timestamp": time.time()}
+        elif res.state == "STARTED":
+            return {"job_id": job_id, "progress": 10, "message": "Job started", "timestamp": time.time()}
+        elif res.state == "SUCCESS":
+            return {"job_id": job_id, "progress": 100, "message": "Job completed", "timestamp": time.time()}
+        elif res.state == "FAILURE":
+            return {"job_id": job_id, "progress": -1, "message": f"Job failed: {str(res.info)}", "timestamp": time.time()}
+        else:
+            return {"job_id": job_id, "progress": 0, "message": f"Job status: {res.state}", "timestamp": time.time()}
+    except Exception as e:
+        return {"job_id": job_id, "progress": -1, "message": f"Error getting progress: {str(e)}", "timestamp": time.time()} 

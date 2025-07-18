@@ -6,9 +6,15 @@ from PIL import Image
 import io
 import tempfile
 import os
+import redis
+import json
+import hashlib
+import time
+
+CACHE_TTL = 3600  # 1 hour - updated for restart
+redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
 def get_cache_key(video_bytes=None, image_bytes=None, query=None):
-    import hashlib
     m = hashlib.sha256()
     if video_bytes:
         m.update(video_bytes)
@@ -18,111 +24,197 @@ def get_cache_key(video_bytes=None, image_bytes=None, query=None):
         m.update(query.encode("utf-8"))
     return m.hexdigest()
 
-@celery_app.task
-def video_search_task(video_bytes, query, products_data):
-    def extract_frames_from_bytes(video_bytes, interval=2, max_frames=8):
-        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
-            tmp.write(video_bytes)
-            tmp_path = tmp.name
-        vidcap = cv2.VideoCapture(tmp_path)
-        frames = []
-        fps = vidcap.get(cv2.CAP_PROP_FPS) or 25
-        count = 0
-        while True:
-            success, image = vidcap.read()
-            if not success or len(frames) >= max_frames:
-                break
-            if int(count % (fps * interval)) == 0:
-                frames.append(image)
-            count += 1
-        vidcap.release()
-        os.remove(tmp_path)
-        return frames
-    frames = extract_frames_from_bytes(video_bytes, interval=2, max_frames=8)
-    pil_frames = [Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) for frame in frames if frame is not None]
-    frame_embeddings = batch_images_to_embeddings(pil_frames, target_size=(224, 224), batch_size=8)
-    SIMILARITY_THRESHOLD = 0.7
-    product_matches = {}
-    for emb in frame_embeddings:
-        emb_np = np.array(emb)
-        for p in products_data:
-            prod_embs = np.array(p["embeddings"])
-            sims = np.dot(prod_embs, emb_np) / (np.linalg.norm(prod_embs, axis=1) * np.linalg.norm(emb_np) + 1e-8)
-            sims = np.clip(sims, 0.0, 1.0)
+def update_progress(job_id, progress, message=""):
+    """Update progress in Redis"""
+    if redis_client:
+        progress_data = {
+            "progress": progress,
+            "message": message,
+            "timestamp": time.time()
+        }
+        redis_client.set(f"progress:{job_id}", json.dumps(progress_data), ex=3600)
+
+@celery_app.task(bind=True)
+def video_search_task(self, video_bytes, query, products_data):
+    job_id = self.request.id
+    try:
+        update_progress(job_id, 0, "Starting video search...")
+        
+        def extract_frames_from_bytes(video_bytes, interval=2, max_frames=8):
+            with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+                tmp.write(video_bytes)
+                tmp_path = tmp.name
+            vidcap = cv2.VideoCapture(tmp_path)
+            frames = []
+            fps = vidcap.get(cv2.CAP_PROP_FPS) or 25
+            count = 0
+            while True:
+                success, image = vidcap.read()
+                if not success or len(frames) >= max_frames:
+                    break
+                if int(count % (fps * interval)) == 0:
+                    frames.append(image)
+                count += 1
+            vidcap.release()
+            os.remove(tmp_path)
+            return frames
+        
+        update_progress(job_id, 10, "Extracting video frames...")
+        frames = extract_frames_from_bytes(video_bytes, interval=2, max_frames=8)
+        
+        update_progress(job_id, 25, "Converting frames to PIL images...")
+        pil_frames = [Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) for frame in frames if frame is not None]
+        
+        update_progress(job_id, 40, "Generating embeddings for video frames...")
+        frame_embeddings = batch_images_to_embeddings(pil_frames, target_size=(224, 224), batch_size=8)
+        
+        update_progress(job_id, 60, "Comparing with product database...")
+        SIMILARITY_THRESHOLD = 0.7
+        product_matches = {}
+        
+        for i, emb in enumerate(frame_embeddings):
+            progress = 60 + (i / len(frame_embeddings)) * 20
+            update_progress(job_id, int(progress), f"Processing frame {i+1}/{len(frame_embeddings)}...")
+            
+            emb_np = np.array(emb)
+            for p in products_data:
+                prod_embs = np.array(p["embeddings"])
+                sims = np.dot(prod_embs, emb_np) / (np.linalg.norm(prod_embs, axis=1) * np.linalg.norm(emb_np) + 1e-8)
+                sims = np.clip(sims, 0.0, 1.0)
+                matched_images = []
+                for idx, sim in enumerate(sims):
+                    if sim >= SIMILARITY_THRESHOLD:
+                        matched_images.append({
+                            "image_url": p["image_urls"][idx],
+                            "image_hash": p["image_hashes"][idx],
+                            "similarity": float(sim)
+                        })
+                if matched_images:
+                    if p["name"] not in product_matches:
+                        product_matches[p["name"]] = {
+                            "name": p["name"],
+                            "price": p["price"],
+                            "description": p["description"],
+                            "category": p["category"],
+                            "image_urls": p["image_urls"],
+                            "matched_images": matched_images
+                        }
+                    else:
+                        existing = product_matches[p["name"]]["matched_images"]
+                        all_imgs = existing + matched_images
+                        img_dict = {}
+                        for m in all_imgs:
+                            h = m["image_hash"]
+                            if h not in img_dict or m["similarity"] > img_dict[h]["similarity"]:
+                                img_dict[h] = m
+                        product_matches[p["name"]]["matched_images"] = list(img_dict.values())
+        
+        update_progress(job_id, 90, "Finalizing results...")
+        results = list(product_matches.values())
+        results.sort(key=lambda x: max([m["similarity"] for m in x["matched_images"]]) if x["matched_images"] else 0, reverse=True)
+        
+        cache_key = get_cache_key(video_bytes=video_bytes, query=query)
+        if redis_client:
+            redis_client.set(cache_key, json.dumps(results), ex=CACHE_TTL)
+        
+        update_progress(job_id, 100, "Search completed!")
+        return {"matches": results[:5]}
+    except Exception as e:
+        update_progress(job_id, -1, f"Error: {str(e)}")
+        print(f"Error in video_search_task: {e}")
+        raise
+
+@celery_app.task(bind=True)
+def image_search_task(self, image_bytes, query, products_data):
+    job_id = self.request.id
+    try:
+        update_progress(job_id, 0, "Starting image search...")
+        
+        update_progress(job_id, 20, "Processing image...")
+        SIMILARITY_THRESHOLD = 0.7
+        pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        
+        update_progress(job_id, 40, "Generating image embedding...")
+        query_embedding = image_to_embedding(pil_image)
+        
+        update_progress(job_id, 60, "Comparing with product database...")
+        def cosine_sim(a, b):
+            a = np.array(a)
+            b = np.array(b)
+            return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+        
+        results = []
+        total_products = len(products_data)
+        for i, p in enumerate(products_data):
+            progress = 60 + (i / total_products) * 30
+            update_progress(job_id, int(progress), f"Checking product {i+1}/{total_products}...")
+            
             matched_images = []
-            for idx, sim in enumerate(sims):
+            for idx, emb in enumerate(p["embeddings"]):
+                sim = cosine_sim(query_embedding, emb)
+                sim = min(max(sim, 0.0), 1.0)
                 if sim >= SIMILARITY_THRESHOLD:
                     matched_images.append({
                         "image_url": p["image_urls"][idx],
                         "image_hash": p["image_hashes"][idx],
-                        "similarity": float(sim)
+                        "similarity": sim
                     })
             if matched_images:
-                if p["name"] not in product_matches:
-                    product_matches[p["name"]] = {
-                        "name": p["name"],
-                        "price": p["price"],
-                        "description": p["description"],
-                        "category": p["category"],
-                        "image_urls": p["image_urls"],
-                        "matched_images": matched_images
-                    }
-                else:
-                    existing = product_matches[p["name"]]["matched_images"]
-                    all_imgs = existing + matched_images
-                    img_dict = {}
-                    for m in all_imgs:
-                        h = m["image_hash"]
-                        if h not in img_dict or m["similarity"] > img_dict[h]["similarity"]:
-                            img_dict[h] = m
-                    product_matches[p["name"]]["matched_images"] = list(img_dict.values())
-    results = list(product_matches.values())
-    results.sort(key=lambda x: max([m["similarity"] for m in x["matched_images"]]) if x["matched_images"] else 0, reverse=True)
-    return {"matches": results[:5]}
-
-@celery_app.task
-def image_search_task(image_bytes, query, products_data):
-    SIMILARITY_THRESHOLD = 0.7
-    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    query_embedding = image_to_embedding(pil_image)
-    def cosine_sim(a, b):
-        a = np.array(a)
-        b = np.array(b)
-        return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
-    results = []
-    for p in products_data:
-        matched_images = []
-        for idx, emb in enumerate(p["embeddings"]):
-            sim = cosine_sim(query_embedding, emb)
-            sim = min(max(sim, 0.0), 1.0)
-            if sim >= SIMILARITY_THRESHOLD:
-                matched_images.append({
-                    "image_url": p["image_urls"][idx],
-                    "image_hash": p["image_hashes"][idx],
-                    "similarity": sim
+                results.append({
+                    "name": p["name"],
+                    "price": p["price"],
+                    "description": p["description"],
+                    "category": p["category"],
+                    "image_urls": p["image_urls"],
+                    "matched_images": matched_images
                 })
-        if matched_images:
+        
+        update_progress(job_id, 95, "Finalizing results...")
+        results.sort(key=lambda x: max([m["similarity"] for m in x["matched_images"]]) if x["matched_images"] else 0, reverse=True)
+        
+        cache_key = get_cache_key(image_bytes=image_bytes, query=query)
+        if redis_client:
+            redis_client.set(cache_key, json.dumps(results), ex=CACHE_TTL)
+        
+        update_progress(job_id, 100, "Search completed!")
+        return {"matches": results[:5]}
+    except Exception as e:
+        update_progress(job_id, -1, f"Error: {str(e)}")
+        print(f"Error in image_search_task: {e}")
+        raise
+
+@celery_app.task(bind=True)
+def text_search_task(self, query, products_data):
+    job_id = self.request.id
+    try:
+        update_progress(job_id, 0, "Starting text search...")
+        
+        update_progress(job_id, 50, "Processing text query...")
+        results = []
+        total_products = len(products_data)
+        
+        for i, p in enumerate(products_data):
+            progress = 50 + (i / total_products) * 40
+            update_progress(job_id, int(progress), f"Processing product {i+1}/{total_products}...")
+            
             results.append({
                 "name": p["name"],
                 "price": p["price"],
                 "description": p["description"],
                 "category": p["category"],
                 "image_urls": p["image_urls"],
-                "matched_images": matched_images
+                "matched_images": []
             })
-    results.sort(key=lambda x: max([m["similarity"] for m in x["matched_images"]]) if x["matched_images"] else 0, reverse=True)
-    return {"matches": results[:5]}
-
-@celery_app.task
-def text_search_task(query, products_data):
-    results = []
-    for p in products_data:
-        results.append({
-            "name": p["name"],
-            "price": p["price"],
-            "description": p["description"],
-            "category": p["category"],
-            "image_urls": p["image_urls"],
-            "matched_images": []
-        })
-    return {"matches": results[:5]} 
+        
+        update_progress(job_id, 95, "Finalizing results...")
+        
+        cache_key = get_cache_key(query=query)
+        if redis_client:
+            redis_client.set(cache_key, json.dumps(results), ex=CACHE_TTL)
+        
+        update_progress(job_id, 100, "Search completed!")
+        return {"matches": results[:5]}
+    except Exception as e:
+        update_progress(job_id, -1, f"Error: {str(e)}")
+        print(f"Error in text_search_task: {e}")
+        raise 

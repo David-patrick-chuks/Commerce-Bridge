@@ -30,27 +30,65 @@ def test_health():
     print(resp.status_code)
     print(resp.text[:300] + ("..." if len(resp.text) > 300 else ""))
 
-def poll_job(job_id, timeout=60, job_type="search"):
+def poll_job_result(job_id, job_type="search", max_wait=60):
+    """Poll for job result with progress updates"""
+    start_time = time.time()
+    last_progress = -1
+    
+    # Determine the progress endpoint based on job type
     if job_type == "add_product":
-        url = f"{CLIP_SERVER_URL}/add_product/job/{job_id}"
+        progress_url = f"{CLIP_SERVER_URL}/add_product/progress/{job_id}"
+        status_url = f"{CLIP_SERVER_URL}/add_product/job/{job_id}"
     else:
-        url = f"{CLIP_SERVER_URL}/search/job/{job_id}"
-    print(f"Polling for job result (job_id={job_id}, type={job_type})...")
-    for _ in range(timeout):
-        job_resp = requests.get(url)
-        job_json = job_resp.json()
-        if job_json.get("status") == "completed":
-            print("Job completed:")
-            print(json.dumps(job_json["result"], indent=2))
-            return job_json["result"]
-        elif job_json.get("status") == "failed":
-            print("Job failed:")
-            print(job_json)
-            return None
-        else:
-            print(f"Job status: {job_json.get('status')}, waiting...")
-            time.sleep(1)
-    print("Timeout waiting for job result.")
+        progress_url = f"{CLIP_SERVER_URL}/search/progress/{job_id}"
+        status_url = f"{CLIP_SERVER_URL}/search/job/{job_id}"
+    
+    while time.time() - start_time < max_wait:
+        try:
+            # Get progress first
+            progress_response = requests.get(progress_url)
+            if progress_response.status_code == 200:
+                progress_data = progress_response.json()
+                current_progress = progress_data.get("progress", 0)
+                message = progress_data.get("message", "")
+                
+                # Only print if progress changed
+                if current_progress != last_progress:
+                    if current_progress == -1:
+                        print(f"❌ {message}")
+                        return None
+                    elif current_progress == 100:
+                        print(f"✅ {message}")
+                    else:
+                        print(f"🔄 {current_progress}% - {message}")
+                    last_progress = current_progress
+            
+            # Check job status
+            response = requests.get(status_url)
+            if response.status_code == 200:
+                result = response.json()
+                
+                if result["status"] == "completed":
+                    print(f"Job completed:")
+                    print(json.dumps(result["result"], indent=2))
+                    return result["result"]
+                elif result["status"] == "failed":
+                    print(f"Job failed:")
+                    print(json.dumps(result, indent=2))
+                    return None
+                elif result["status"] == "processing":
+                    # Continue polling
+                    pass
+                else:
+                    print(f"Job status: {result['status']}")
+            
+            time.sleep(1)  # Poll every second
+            
+        except requests.exceptions.RequestException as e:
+            print(f"Error polling job: {e}")
+            time.sleep(2)
+    
+    print(f"Timeout waiting for job result after {max_wait} seconds")
     return None
 
 def add_all_products():
@@ -68,7 +106,7 @@ def add_all_products():
         try:
             resp_json = resp.json()
             if "job_id" in resp_json:
-                poll_job(resp_json["job_id"], job_type="add_product")
+                poll_job_result(resp_json["job_id"], job_type="add_product")
         except Exception:
             print(resp.text)
 
@@ -87,7 +125,7 @@ def search_with_images():
             resp_json = search_resp.json()
             print(resp_json)
             if "job_id" in resp_json:
-                poll_job(resp_json["job_id"])
+                poll_job_result(resp_json["job_id"])
         except Exception:
             print(search_resp.text)
 
@@ -110,7 +148,7 @@ def search_with_queries():
             resp_json = resp.json()
             print(resp_json)
             if "job_id" in resp_json:
-                poll_job(resp_json["job_id"])
+                poll_job_result(resp_json["job_id"])
         except Exception:
             print(resp.text)
 
@@ -134,7 +172,7 @@ def search_with_image_and_query():
             resp_json = search_resp.json()
             print(resp_json)
             if "job_id" in resp_json:
-                poll_job(resp_json["job_id"])
+                poll_job_result(resp_json["job_id"])
         except Exception:
             print(search_resp.text)
 
@@ -151,7 +189,7 @@ def search_with_video():
         resp_json = search_resp.json()
         print(resp_json)
         if "job_id" in resp_json:
-            poll_job(resp_json["job_id"])
+            poll_job_result(resp_json["job_id"])
     except Exception:
         print(search_resp.text)
 
