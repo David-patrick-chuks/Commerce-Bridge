@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # Redis for caching and message broker
+  redis:
+    image: redis:7-alpine
+    container_name: taja_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # FastAPI application (development)
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: taja_api_dev
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MONGODB_URI=${MONGODB_URI}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - ENVIRONMENT=development
+    volumes:
+      - .:/app
+      - ./images_data:/app/images_data:ro
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - taja_network_dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery worker for background tasks (development)
+  worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: taja_worker_dev
+    command: celery -A app.worker.celery_app worker --loglevel=info --pool=solo --autoreload
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - MONGODB_URI=${MONGODB_URI}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - ENVIRONMENT=development
+    volumes:
+      - .:/app
+      - ./images_data:/app/images_data:ro
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - taja_network_dev
+
+  # Flower monitoring for Celery (development)
+  flower:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: taja_flower_dev
+    command: celery -A app.worker.celery_app flower --port=5555 --broker=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+    depends_on:
+      - redis
+      - worker
+    restart: unless-stopped
+    networks:
+      - taja_network_dev
+
+  # MongoDB (optional - for local development)
+  mongodb:
+    image: mongo:6
+    container_name: taja_mongodb_dev
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=taja
+    volumes:
+      - mongodb_data_dev:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: unless-stopped
+    networks:
+      - taja_network_dev
+    profiles:
+      - local-db
+
+volumes:
+  redis_data_dev:
+    driver: local
+  mongodb_data_dev:
+    driver: local
+
+networks:
+  taja_network_dev:
+    driver: bridge 

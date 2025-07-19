@@ -59,22 +59,29 @@ def video_search_task(self, video_bytes, query, products_data):
             os.remove(tmp_path)
             return frames
         
+        update_progress(job_id, 5, "Loading video data...")
         update_progress(job_id, 10, "Extracting video frames...")
         frames = extract_frames_from_bytes(video_bytes, interval=2, max_frames=8)
         
+        update_progress(job_id, 20, f"Extracted {len(frames)} frames from video...")
         update_progress(job_id, 25, "Converting frames to PIL images...")
         pil_frames = [Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) for frame in frames if frame is not None]
         
+        update_progress(job_id, 30, f"Converted {len(pil_frames)} frames...")
+        update_progress(job_id, 35, "Preparing frames for AI analysis...")
         update_progress(job_id, 40, "Generating embeddings for video frames...")
         frame_embeddings = batch_images_to_embeddings(pil_frames, target_size=(224, 224), batch_size=8)
         
-        update_progress(job_id, 60, "Comparing with product database...")
+        update_progress(job_id, 50, f"Generated embeddings for {len(frame_embeddings)} frames...")
+        update_progress(job_id, 55, "Starting database comparison...")
+        
         SIMILARITY_THRESHOLD = 0.7
         product_matches = {}
+        total_frames = len(frame_embeddings)
         
         for i, emb in enumerate(frame_embeddings):
-            progress = 60 + (i / len(frame_embeddings)) * 20
-            update_progress(job_id, int(progress), f"Processing frame {i+1}/{len(frame_embeddings)}...")
+            progress = 55 + (i / total_frames) * 25
+            update_progress(job_id, int(progress), f"Processing frame {i+1}/{total_frames}...")
             
             emb_np = np.array(emb)
             for p in products_data:
@@ -109,6 +116,7 @@ def video_search_task(self, video_bytes, query, products_data):
                                 img_dict[h] = m
                         product_matches[p["name"]]["matched_images"] = list(img_dict.values())
         
+        update_progress(job_id, 85, f"Found {len(product_matches)} matching products...")
         update_progress(job_id, 90, "Finalizing results...")
         results = list(product_matches.values())
         results.sort(key=lambda x: max([m["similarity"] for m in x["matched_images"]]) if x["matched_images"] else 0, reverse=True)
@@ -117,7 +125,7 @@ def video_search_task(self, video_bytes, query, products_data):
         if redis_client:
             redis_client.set(cache_key, json.dumps(results), ex=CACHE_TTL)
         
-        update_progress(job_id, 100, "Search completed!")
+        update_progress(job_id, 100, f"Video search completed! Found {len(results)} matches")
         return {"matches": results[:5]}
     except Exception as e:
         update_progress(job_id, -1, f"Error: {str(e)}")
@@ -130,14 +138,19 @@ def image_search_task(self, image_bytes, query, products_data):
     try:
         update_progress(job_id, 0, "Starting image search...")
         
-        update_progress(job_id, 20, "Processing image...")
+        update_progress(job_id, 5, "Loading image data...")
         SIMILARITY_THRESHOLD = 0.7
         pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         
-        update_progress(job_id, 40, "Generating image embedding...")
+        update_progress(job_id, 15, "Processing image format...")
+        update_progress(job_id, 25, "Preparing image for AI analysis...")
+        
+        update_progress(job_id, 35, "Generating image embedding...")
         query_embedding = image_to_embedding(pil_image)
         
-        update_progress(job_id, 60, "Comparing with product database...")
+        update_progress(job_id, 45, "Embedding generation completed...")
+        update_progress(job_id, 50, "Starting database comparison...")
+        
         def cosine_sim(a, b):
             a = np.array(a)
             b = np.array(b)
@@ -145,9 +158,13 @@ def image_search_task(self, image_bytes, query, products_data):
         
         results = []
         total_products = len(products_data)
+        update_progress(job_id, 55, f"Comparing with {total_products} products...")
+        
         for i, p in enumerate(products_data):
-            progress = 60 + (i / total_products) * 30
-            update_progress(job_id, int(progress), f"Checking product {i+1}/{total_products}...")
+            # More granular progress updates
+            progress = 55 + (i / total_products) * 35
+            if i % max(1, total_products // 10) == 0:  # Update every 10% of products
+                update_progress(job_id, int(progress), f"Checking product {i+1}/{total_products}...")
             
             matched_images = []
             for idx, emb in enumerate(p["embeddings"]):
@@ -169,6 +186,7 @@ def image_search_task(self, image_bytes, query, products_data):
                     "matched_images": matched_images
                 })
         
+        update_progress(job_id, 90, f"Found {len(results)} matching products...")
         update_progress(job_id, 95, "Finalizing results...")
         results.sort(key=lambda x: max([m["similarity"] for m in x["matched_images"]]) if x["matched_images"] else 0, reverse=True)
         
@@ -176,7 +194,7 @@ def image_search_task(self, image_bytes, query, products_data):
         if redis_client:
             redis_client.set(cache_key, json.dumps(results), ex=CACHE_TTL)
         
-        update_progress(job_id, 100, "Search completed!")
+        update_progress(job_id, 100, f"Search completed! Found {len(results)} matches")
         return {"matches": results[:5]}
     except Exception as e:
         update_progress(job_id, -1, f"Error: {str(e)}")

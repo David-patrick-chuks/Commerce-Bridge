@@ -34,6 +34,7 @@ def poll_job_result(job_id, job_type="search", max_wait=60):
     """Poll for job result with progress updates"""
     start_time = time.time()
     last_progress = -1
+    last_message = ""
     
     # Determine the progress endpoint based on job type
     if job_type == "add_product":
@@ -52,8 +53,8 @@ def poll_job_result(job_id, job_type="search", max_wait=60):
                 current_progress = progress_data.get("progress", 0)
                 message = progress_data.get("message", "")
                 
-                # Only print if progress changed
-                if current_progress != last_progress:
+                # Print if progress or message changed
+                if current_progress != last_progress or message != last_message:
                     if current_progress == -1:
                         print(f"❌ {message}")
                         return None
@@ -62,6 +63,7 @@ def poll_job_result(job_id, job_type="search", max_wait=60):
                     else:
                         print(f"🔄 {current_progress}% - {message}")
                     last_progress = current_progress
+                    last_message = message
             
             # Check job status
             response = requests.get(status_url)
@@ -82,11 +84,11 @@ def poll_job_result(job_id, job_type="search", max_wait=60):
                 else:
                     print(f"Job status: {result['status']}")
             
-            time.sleep(1)  # Poll every second
+            time.sleep(0.5)  # Poll every 0.5 seconds for more frequent updates
             
         except requests.exceptions.RequestException as e:
             print(f"Error polling job: {e}")
-            time.sleep(2)
+            time.sleep(1)
     
     print(f"Timeout waiting for job result after {max_wait} seconds")
     return None
