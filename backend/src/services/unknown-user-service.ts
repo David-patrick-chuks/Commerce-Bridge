@@ -1,6 +1,6 @@
+import { project_name } from '../config';
 import { UnknownUserModel } from '../models/unknown-user';
 import { UnknownUserDocument } from '../types/models.types';
-import { project_name } from '../utils/config';
 
 export interface CreateUnknownUserRequest {
   phoneNumber: string;

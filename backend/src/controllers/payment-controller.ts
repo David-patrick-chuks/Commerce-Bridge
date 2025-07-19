@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
+import { project_name } from '../config';
 import { whatsappBot } from '../index';
 import { OrderModel } from '../models/order';
-import { project_name } from '../utils/config';
 
 export const dummyPaymentPage = async (req: Request, res: Response) => {
   const { orderId } = req.params;

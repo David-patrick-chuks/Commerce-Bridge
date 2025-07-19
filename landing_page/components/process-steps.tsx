@@ -12,7 +12,7 @@ const steps = [
   {
     icon: Image,
     title: "Upload & Search",
-    description: "Sellers upload product photos. Customers search by uploading images of what they want using AI.",
+    description: "Sellers upload product photos and videos. Customers search by uploading images/videos or describing what they want using AI.",
   },
   {
     icon: Zap,

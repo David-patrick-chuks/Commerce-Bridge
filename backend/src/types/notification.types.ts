@@ -1,4 +1,3 @@
-import { project_name } from '../utils/config';
 /**
  * @fileoverview Notification system types and interfaces for ${project_name}
  * 

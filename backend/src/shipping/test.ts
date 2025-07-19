@@ -1,13 +1,13 @@
+import { project_name } from '../config';
 import { MockShipbubbleService } from './mock';
 import {
-  ShipbubblePackage,
-  createFetchRatesRequest,
-  getAddresses,
-  getCategories,
-  getShippingRates
+    ShipbubblePackage,
+    createFetchRatesRequest,
+    getAddresses,
+    getCategories,
+    getShippingRates
 } from './shipbubble';
 import { ShippingAddress as ShipbubbleAddress } from './types';
-import { project_name } from '../utils/config';
 
 // Sample test data with realistic Nigerian addresses
 const sampleShipFrom: ShipbubbleAddress = {

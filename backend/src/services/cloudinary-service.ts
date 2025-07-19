@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import { project_name } from '../config';
 import { CloudinaryUploadResult } from '../types';
-import { project_name } from '../utils/config';
 
 dotenv.config({ quiet: true });
 

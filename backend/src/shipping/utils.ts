@@ -1,5 +1,5 @@
+import { project_name } from '../config';
 import { ShippingAddress, ShippingPackage, ShippingRate } from './types';
-import { project_name } from '../utils/config';
 
 /**
  * Validate shipping address format

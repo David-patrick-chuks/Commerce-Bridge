@@ -11,8 +11,8 @@ const features = [
   },
   {
     icon: Image,
-    title: "AI Image Search",
-    description: "Upload product images and find similar items using AI. Customers can search by uploading photos of what they want.",
+    title: "AI Multi-Media Search",
+    description: "Upload product images, videos, or use text queries to find items using AI. Customers can search by uploading photos/videos or describing what they want.",
   },
   {
     icon: Shield,

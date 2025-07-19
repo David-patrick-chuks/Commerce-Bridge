@@ -1,5 +1,6 @@
 // Test script for the notification system
 import axios from 'axios';
+import { project_name } from '../src/config';
 import {
     BulkNotificationResponse,
     ConversionAnalytics,
@@ -9,7 +10,6 @@ import {
     UnknownUserStats,
     UserNotificationsResponse
 } from '../src/types';
-import { project_name } from '../src/config';
 
 const BASE_URL = 'http://localhost:3001/api';
 

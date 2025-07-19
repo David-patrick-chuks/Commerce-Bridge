@@ -3,7 +3,7 @@ import { NotificationModel } from '../models/notification';
 import { UnknownUserModel } from '../models/unknown-user';
 import { UserModel } from '../models/user';
 import { NotificationDocument, UnknownUserDocument, UserDocument } from '../types/models.types';
-import { project_name } from '../utils/config';
+import { project_name } from '../config';
 
 export interface CreateNotificationRequest {
   phoneNumber?: string;

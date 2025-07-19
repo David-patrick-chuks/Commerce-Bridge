@@ -14,7 +14,7 @@ const testimonials = [
   },
   {
     content:
-      "I love shopping on ${project_name}! I just upload a photo of what I want, and the AI finds similar products. It's so much easier than browsing websites.",
+      `I love shopping on ${project_name}! I just upload a photo of what I want, and the AI finds similar products. It's so much easier than browsing websites.`,
     author: "David Kim",
     role: "Customer",
     avatar: "DK",
