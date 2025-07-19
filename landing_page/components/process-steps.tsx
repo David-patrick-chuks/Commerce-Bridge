@@ -28,7 +28,7 @@ export default function ProcessSteps() {
       <div className="hidden lg:block absolute top-16 left-1/2 transform -translate-x-1/2 w-full max-w-4xl">
         <div className="relative h-0.5 bg-gray-200">
           <motion.div
-            className="absolute inset-0 bg-green-600"
+            className="absolute inset-0 bg-brand-primary"
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true }}
@@ -48,10 +48,10 @@ export default function ProcessSteps() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: index * 0.2 }}
           >
-            <div className="relative inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-6 shadow-lg">
+            <div className="relative inline-flex items-center justify-center w-16 h-16 bg-brand-primary rounded-full mb-6 shadow-lg">
               <step.icon className="w-8 h-8 text-white" />
               <div className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm">
-                <span className="text-xs font-bold text-green-600">{index + 1}</span>
+                <span className="text-xs font-bold text-brand-primary">{index + 1}</span>
               </div>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h3>

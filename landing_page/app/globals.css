@@ -62,6 +62,16 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Brand Colors - Easy to change */
+    --brand-primary: #16a34a;      /* Green-600 */
+    --brand-secondary: #22c55e;    /* Green-500 */
+    --brand-accent: #4ade80;       /* Green-400 */
+    --brand-light: #f0fdf4;        /* Green-50 */
+    --brand-dark: #15803d;         /* Green-700 */
+    --brand-gradient-from: #16a34a; /* Green-600 */
+    --brand-gradient-via: #22c55e;  /* Green-500 */
+    --brand-gradient-to: #16a34a;   /* Green-600 */
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -96,6 +106,16 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Dark mode brand colors */
+    --brand-primary: #22c55e;      /* Green-500 for dark mode */
+    --brand-secondary: #4ade80;    /* Green-400 for dark mode */
+    --brand-accent: #86efac;       /* Green-300 for dark mode */
+    --brand-light: #14532d;        /* Green-900 for dark mode */
+    --brand-dark: #16a34a;         /* Green-600 for dark mode */
+    --brand-gradient-from: #22c55e; /* Green-500 */
+    --brand-gradient-via: #4ade80;  /* Green-400 */
+    --brand-gradient-to: #22c55e;   /* Green-500 */
   }
 }
 
