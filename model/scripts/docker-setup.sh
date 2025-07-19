@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# Taja AI Model Docker Setup Script
-# This script sets up the Docker environment for the Taja AI model
+# Taja AI Model - Docker Setup Script
+# This script sets up the complete Docker environment for Taja AI Model
 
 set -e
-
-echo "🚀 Setting up Taja AI Model Docker Environment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -14,153 +12,130 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
-print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Check if Docker is installed
-check_docker() {
-    print_status "Checking Docker installation..."
-    if ! command -v docker &> /dev/null; then
-        print_error "Docker is not installed. Please install Docker first."
-        exit 1
-    fi
-    
-    if ! command -v docker-compose &> /dev/null; then
-        print_error "Docker Compose is not installed. Please install Docker Compose first."
-        exit 1
-    fi
-    
-    print_success "Docker and Docker Compose are installed"
-}
+echo -e "${BLUE}🚀 Taja AI Model - Docker Setup${NC}"
+echo "=================================="
 
 # Check if .env file exists
-setup_env() {
-    print_status "Setting up environment variables..."
-    
-    if [ ! -f .env ]; then
-        if [ -f .env.example ]; then
-            cp .env.example .env
-            print_warning "Created .env file from .env.example"
-            print_warning "Please update .env file with your actual configuration values"
-        else
-            print_error ".env.example file not found"
-            exit 1
-        fi
+if [ ! -f .env ]; then
+    echo -e "${YELLOW}⚠️  .env file not found!${NC}"
+    echo -e "${YELLOW}Creating .env file from .env.example...${NC}"
+    if [ -f .env.example ]; then
+        cp .env.example .env
+        echo -e "${GREEN}✅ .env file created from .env.example${NC}"
+        echo -e "${YELLOW}⚠️  Please edit .env file with your actual configuration values:${NC}"
+        echo -e "${YELLOW}   - MONGO_URI (MongoDB connection string)${NC}"
+        echo -e "${YELLOW}   - CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET${NC}"
+        echo -e "${YELLOW}   - SECRET_KEY (for security)${NC}"
+        echo -e "${YELLOW}   - Other configuration as needed${NC}"
+        echo ""
+        echo -e "${YELLOW}Press Enter to continue after editing .env file...${NC}"
+        read -r
     else
-        print_success ".env file already exists"
+        echo -e "${RED}❌ .env.example file not found!${NC}"
+        echo -e "${RED}Please create a .env file with the required environment variables.${NC}"
+        exit 1
     fi
-}
+fi
 
-# Create necessary directories
-create_directories() {
-    print_status "Creating necessary directories..."
-    
-    mkdir -p logs
-    mkdir -p images_data/Products
-    mkdir -p ssl
-    
-    print_success "Directories created"
-}
+# Validate required environment variables
+echo -e "${BLUE}🔍 Validating environment configuration...${NC}"
 
-# Build Docker images
-build_images() {
-    print_status "Building Docker images..."
-    
-    docker-compose build
-    
-    print_success "Docker images built successfully"
-}
+# Check for required variables
+required_vars=("MONGO_URI" "CLOUDINARY_CLOUD_NAME" "CLOUDINARY_API_KEY" "CLOUDINARY_API_SECRET" "SECRET_KEY")
+missing_vars=()
 
-# Start services
-start_services() {
-    print_status "Starting services..."
-    
-    docker-compose up -d
-    
-    print_success "Services started successfully"
-}
+for var in "${required_vars[@]}"; do
+    if ! grep -q "^${var}=" .env || grep -q "^${var}=$" .env || grep -q "^${var}=your-" .env; then
+        missing_vars+=("$var")
+    fi
+done
+
+if [ ${#missing_vars[@]} -ne 0 ]; then
+    echo -e "${RED}❌ Missing or invalid required environment variables:${NC}"
+    for var in "${missing_vars[@]}"; do
+        echo -e "${RED}   - $var${NC}"
+    done
+    echo -e "${YELLOW}Please update your .env file with valid values.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Environment configuration validated${NC}"
+
+# Check Docker and Docker Compose
+echo -e "${BLUE}🔍 Checking Docker installation...${NC}"
+if ! command -v docker &> /dev/null; then
+    echo -e "${RED}❌ Docker is not installed!${NC}"
+    echo -e "${YELLOW}Please install Docker first: https://docs.docker.com/get-docker/${NC}"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    echo -e "${RED}❌ Docker Compose is not installed!${NC}"
+    echo -e "${YELLOW}Please install Docker Compose first: https://docs.docker.com/compose/install/${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Docker and Docker Compose are available${NC}"
+
+# Build and start services
+echo -e "${BLUE}🏗️  Building Docker images...${NC}"
+docker-compose build
+
+echo -e "${BLUE}🚀 Starting services...${NC}"
+docker-compose up -d
 
 # Wait for services to be ready
-wait_for_services() {
-    print_status "Waiting for services to be ready..."
-    
-    # Wait for Redis
-    print_status "Waiting for Redis..."
-    until docker-compose exec -T redis redis-cli ping > /dev/null 2>&1; do
-        sleep 2
-    done
-    print_success "Redis is ready"
-    
-    # Wait for API
-    print_status "Waiting for API..."
-    until curl -f http://localhost:8000/health > /dev/null 2>&1; do
-        sleep 5
-    done
-    print_success "API is ready"
-    
-    # Wait for Flower
-    print_status "Waiting for Flower..."
-    until curl -f http://localhost:5555 > /dev/null 2>&1; do
-        sleep 5
-    done
-    print_success "Flower is ready"
-}
+echo -e "${BLUE}⏳ Waiting for services to be ready...${NC}"
+sleep 10
 
-# Show service status
-show_status() {
-    print_status "Service Status:"
-    docker-compose ps
-    
-    echo ""
-    print_status "Service URLs:"
-    echo "  API: http://localhost:8000"
-    echo "  API Docs: http://localhost:8000/docs"
-    echo "  Flower Monitoring: http://localhost:5555"
-    echo "  Redis: localhost:6379"
-}
+# Check service health
+echo -e "${BLUE}🔍 Checking service health...${NC}"
 
-# Main execution
-main() {
-    echo "🐳 Taja AI Model Docker Setup"
-    echo "=============================="
-    
-    check_docker
-    setup_env
-    create_directories
-    build_images
-    start_services
-    wait_for_services
-    show_status
-    
-    echo ""
-    print_success "Setup completed successfully!"
-    echo ""
-    print_status "Next steps:"
-    echo "  1. Update .env file with your configuration"
-    echo "  2. Add your product images to images_data/Products/"
-    echo "  3. Run tests: python test/api_test.py"
-    echo "  4. Monitor services: docker-compose logs -f"
-    echo ""
-    print_status "Useful commands:"
-    echo "  docker-compose up -d          # Start services"
-    echo "  docker-compose down           # Stop services"
-    echo "  docker-compose logs -f        # View logs"
-    echo "  docker-compose restart        # Restart services"
-}
+# Check API health
+if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ API service is healthy${NC}"
+else
+    echo -e "${YELLOW}⚠️  API service health check failed (may still be starting)${NC}"
+fi
 
-# Run main function
-main "$@" 
+# Check Redis
+if docker-compose exec -T redis redis-cli ping > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ Redis service is healthy${NC}"
+else
+    echo -e "${YELLOW}⚠️  Redis service health check failed${NC}"
+fi
+
+# Check Celery worker
+if docker-compose exec -T worker celery -A app.worker.celery_app inspect ping > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ Celery worker is healthy${NC}"
+else
+    echo -e "${YELLOW}⚠️  Celery worker health check failed (may still be starting)${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}🎉 Taja AI Model is now running!${NC}"
+echo "=================================="
+echo -e "${BLUE}📊 Service URLs:${NC}"
+echo -e "${GREEN}   API:${NC} http://localhost:8000"
+echo -e "${GREEN}   API Docs:${NC} http://localhost:8000/docs"
+echo -e "${GREEN}   Health Check:${NC} http://localhost:8000/health"
+echo -e "${GREEN}   Configuration:${NC} http://localhost:8000/config"
+echo -e "${GREEN}   Metrics:${NC} http://localhost:8000/metrics"
+echo -e "${GREEN}   Flower (Celery):${NC} http://localhost:5555"
+echo -e "${GREEN}   Redis:${NC} localhost:6379"
+echo ""
+echo -e "${BLUE}🔧 Management Commands:${NC}"
+echo -e "${GREEN}   View logs:${NC} docker-compose logs -f"
+echo -e "${GREEN}   Stop services:${NC} docker-compose down"
+echo -e "${GREEN}   Restart services:${NC} docker-compose restart"
+echo -e "${GREEN}   Rebuild and restart:${NC} docker-compose up -d --build"
+echo ""
+echo -e "${BLUE}🧪 Testing:${NC}"
+echo -e "${GREEN}   Run test script:${NC} python test/api_test.py"
+echo -e "${GREEN}   Test health endpoint:${NC} curl http://localhost:8000/health"
+echo ""
+echo -e "${YELLOW}⚠️  Development Mode:${NC}"
+echo -e "${YELLOW}   For development with hot-reload, use:${NC}"
+echo -e "${YELLOW}   docker-compose -f docker-compose.dev.yml up -d${NC}"
+echo ""
+echo -e "${GREEN}🚀 Happy coding!${NC}" 

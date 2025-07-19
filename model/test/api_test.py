@@ -3,7 +3,7 @@ import os
 import json
 import time
 
-CLIP_SERVER_URL = "http://localhost:8000"
+CLIP_SERVER_URL = "http://localhost:8000/api/v1"
 PRODUCTS_JSON = os.path.join("images_data", "products.json")
 SEARCH_IMAGES = [
     os.path.join("images_data", "Products", "search1.jpg"),

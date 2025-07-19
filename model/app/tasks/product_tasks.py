@@ -1,18 +1,23 @@
 from app.worker import celery_app
 from app.core.db import get_products_collection
 from app.core.clip_utils import image_to_embedding
+from app.core.config import settings
 import hashlib
 import io
 from PIL import Image
 import cloudinary
 import cloudinary.uploader
-import os
 import redis
 import json
 import time
 
 # Redis client for progress tracking
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+try:
+    redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+    redis_client.ping()
+except Exception as e:
+    redis_client = None
+    print(f"Redis connection failed: {e}")
 
 def update_progress(job_id, progress, message=""):
     """Update progress in Redis"""

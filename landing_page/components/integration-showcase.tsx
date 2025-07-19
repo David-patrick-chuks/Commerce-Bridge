@@ -14,6 +14,9 @@ const integrations = [
 ]
 
 export default function IntegrationShowcase() {
+  // Duplicate the integrations array to create seamless loop
+  const duplicatedIntegrations = [...integrations, ...integrations]
+
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-8">
       <motion.div
@@ -27,21 +30,18 @@ export default function IntegrationShowcase() {
           Trusted by 50,000+ businesses worldwide and seamlessly integrates with your favorite tools
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
-          {integrations.map((integration, index) => (
-            <motion.div
-              key={integration.name}
-              className="flex items-center space-x-3 text-gray-400 hover:text-gray-600 transition-colors duration-300"
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.1, y: -2 }}
-            >
-              <span className="text-2xl">{integration.logo}</span>
-              <span className="font-semibold text-lg">{integration.name}</span>
-            </motion.div>
-          ))}
+        <div className="relative overflow-hidden">
+          <div className="flex items-center gap-8 lg:gap-12 animate-marquee whitespace-nowrap">
+            {duplicatedIntegrations.map((integration, index) => (
+              <div
+                key={`${integration.name}-${index}`}
+                className="flex items-center space-x-3 text-gray-400 hover:text-gray-600 transition-colors duration-300 flex-shrink-0"
+              >
+                <span className="text-2xl">{integration.logo}</span>
+                <span className="font-semibold text-lg">{integration.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </motion.div>
     </div>

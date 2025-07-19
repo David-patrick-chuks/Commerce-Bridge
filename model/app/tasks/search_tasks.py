@@ -1,5 +1,6 @@
 from app.worker import celery_app
 from app.core.clip_utils import image_to_embedding, batch_images_to_embeddings
+from app.core.config import settings
 import numpy as np
 import cv2
 from PIL import Image
@@ -12,7 +13,14 @@ import hashlib
 import time
 
 CACHE_TTL = 3600  # 1 hour - updated for restart
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+# Connect to Redis using settings
+try:
+    redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+    redis_client.ping()
+except Exception as e:
+    redis_client = None
+    print(f"Redis connection failed: {e}")
 
 def get_cache_key(video_bytes=None, image_bytes=None, query=None):
     m = hashlib.sha256()
@@ -75,7 +83,6 @@ def video_search_task(self, video_bytes, query, products_data):
         update_progress(job_id, 50, f"Generated embeddings for {len(frame_embeddings)} frames...")
         update_progress(job_id, 55, "Starting database comparison...")
         
-        SIMILARITY_THRESHOLD = 0.7
         product_matches = {}
         total_frames = len(frame_embeddings)
         
@@ -90,7 +97,7 @@ def video_search_task(self, video_bytes, query, products_data):
                 sims = np.clip(sims, 0.0, 1.0)
                 matched_images = []
                 for idx, sim in enumerate(sims):
-                    if sim >= SIMILARITY_THRESHOLD:
+                    if sim >= settings.SIMILARITY_THRESHOLD:
                         matched_images.append({
                             "image_url": p["image_urls"][idx],
                             "image_hash": p["image_hashes"][idx],
@@ -139,7 +146,6 @@ def image_search_task(self, image_bytes, query, products_data):
         update_progress(job_id, 0, "Starting image search...")
         
         update_progress(job_id, 5, "Loading image data...")
-        SIMILARITY_THRESHOLD = 0.7
         pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         
         update_progress(job_id, 15, "Processing image format...")
@@ -170,7 +176,7 @@ def image_search_task(self, image_bytes, query, products_data):
             for idx, emb in enumerate(p["embeddings"]):
                 sim = cosine_sim(query_embedding, emb)
                 sim = min(max(sim, 0.0), 1.0)
-                if sim >= SIMILARITY_THRESHOLD:
+                if sim >= settings.SIMILARITY_THRESHOLD:
                     matched_images.append({
                         "image_url": p["image_urls"][idx],
                         "image_hash": p["image_hashes"][idx],
@@ -207,30 +213,54 @@ def text_search_task(self, query, products_data):
     try:
         update_progress(job_id, 0, "Starting text search...")
         
-        update_progress(job_id, 50, "Processing text query...")
+        update_progress(job_id, 10, "Processing text query...")
+        update_progress(job_id, 20, "Preparing search parameters...")
+        
+        # Simple text-based filtering (can be enhanced with embeddings later)
+        words = query.lower().split()
         results = []
         total_products = len(products_data)
         
-        for i, p in enumerate(products_data):
-            progress = 50 + (i / total_products) * 40
-            update_progress(job_id, int(progress), f"Processing product {i+1}/{total_products}...")
-            
-            results.append({
-                "name": p["name"],
-                "price": p["price"],
-                "description": p["description"],
-                "category": p["category"],
-                "image_urls": p["image_urls"],
-                "matched_images": []
-            })
+        update_progress(job_id, 30, f"Searching through {total_products} products...")
         
+        for i, p in enumerate(products_data):
+            progress = 30 + (i / total_products) * 60
+            if i % max(1, total_products // 10) == 0:
+                update_progress(job_id, int(progress), f"Checking product {i+1}/{total_products}...")
+            
+            # Check if any word matches in name or description
+            name_lower = p["name"].lower()
+            desc_lower = p["description"].lower()
+            
+            matches = 0
+            for word in words:
+                if word in name_lower or word in desc_lower:
+                    matches += 1
+            
+            # Calculate relevance score based on matches
+            if matches > 0:
+                relevance = matches / len(words)
+                results.append({
+                    "name": p["name"],
+                    "price": p["price"],
+                    "description": p["description"],
+                    "category": p["category"],
+                    "image_urls": p["image_urls"],
+                    "relevance_score": relevance,
+                    "matched_words": matches
+                })
+        
+        update_progress(job_id, 90, f"Found {len(results)} matching products...")
         update_progress(job_id, 95, "Finalizing results...")
+        
+        # Sort by relevance score
+        results.sort(key=lambda x: x["relevance_score"], reverse=True)
         
         cache_key = get_cache_key(query=query)
         if redis_client:
             redis_client.set(cache_key, json.dumps(results), ex=CACHE_TTL)
         
-        update_progress(job_id, 100, "Search completed!")
+        update_progress(job_id, 100, f"Text search completed! Found {len(results)} matches")
         return {"matches": results[:5]}
     except Exception as e:
         update_progress(job_id, -1, f"Error: {str(e)}")

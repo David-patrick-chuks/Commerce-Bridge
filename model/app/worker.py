@@ -1,13 +1,11 @@
 from celery import Celery
-import os
-
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+from app.core.config import settings
 
 celery_app = Celery("model")
 
 celery_app.conf.update(
-    broker_url=REDIS_URL,
-    result_backend=REDIS_URL,
+    broker_url=settings.REDIS_URL,
+    result_backend=settings.REDIS_URL,
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],

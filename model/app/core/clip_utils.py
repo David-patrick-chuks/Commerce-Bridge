@@ -1,21 +1,22 @@
 import torch
 import clip
 from PIL import Image
+from app.core.config import settings
 
 _clip_model = None
 _clip_preprocess = None
 _clip_device = "cuda" if torch.cuda.is_available() else "cpu"
-EMBEDDING_DIM = 768  # dimension for ViT-L/14
+EMBEDDING_DIM = settings.EMBEDDING_DIMENSION  # Use configurable dimension
 
 def initialize_clip():
     """Initialize CLIP model and preprocess, loading only once."""
     global _clip_model, _clip_preprocess
     if _clip_model is None or _clip_preprocess is None:
-        _clip_model, _clip_preprocess = clip.load("ViT-L/14", device=_clip_device)
+        _clip_model, _clip_preprocess = clip.load(settings.CLIP_MODEL_NAME, device=_clip_device)
     return _clip_model, _clip_preprocess
 
 def image_to_embedding(pil_image):
-    """Convert a PIL image to a 768-dimensional CLIP embedding."""
+    """Convert a PIL image to a CLIP embedding using configured dimensions."""
     if not isinstance(pil_image, Image.Image):
         raise ValueError("Input must be a PIL.Image.Image object")
     model, preprocess = initialize_clip()
@@ -27,7 +28,7 @@ def image_to_embedding(pil_image):
     return embedding.tolist()
 
 def batch_images_to_embeddings(pil_images, target_size=(224, 224), batch_size=8):
-    """Convert a list of PIL images to a list of 768-dimensional CLIP embeddings using batching and resizing."""
+    """Convert a list of PIL images to a list of CLIP embeddings using batching and resizing."""
     if not pil_images:
         return []
     model, preprocess = initialize_clip()

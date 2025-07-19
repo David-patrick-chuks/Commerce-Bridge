@@ -1,13 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse
 from app.core.db import get_products_collection
 from app.core.schemas import ProductSearchResult, SearchResponse, ErrorResponse
+from app.core.config import settings
 from app.worker import celery_app
 from app.tasks.search_tasks import video_search_task, image_search_task, text_search_task
 import io
 from PIL import Image
 import numpy as np
-from typing import Optional
+from typing import Optional, List
 import mimetypes
 import hashlib
 import redis
@@ -20,7 +21,7 @@ router = APIRouter()
 
 # Connect to Redis
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
     redis_client.ping()
     logging.info("Connected to Redis for caching.")
 except Exception as e:
@@ -39,6 +40,30 @@ def get_cache_key(video_bytes=None, image_bytes=None, query=None):
         m.update(query.encode("utf-8"))
     return m.hexdigest()
 
+def validate_file(file: UploadFile, max_size: int = None, allowed_types: List[str] = None) -> bool:
+    """Validate uploaded file size and type"""
+    if max_size is None:
+        max_size = settings.MAX_FILE_SIZE
+    
+    if allowed_types is None:
+        allowed_types = settings.ALLOWED_IMAGE_TYPES + settings.ALLOWED_VIDEO_TYPES
+    
+    # Check file size
+    if file.size and file.size > max_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File {file.filename} is too large. Maximum size is {max_size // (1024*1024)}MB"
+        )
+    
+    # Check file type
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail=f"File type {file.content_type} not allowed. Allowed types: {', '.join(allowed_types)}"
+        )
+    
+    return True
+
 @router.post(
     "/search",
     tags=["Products"],
@@ -50,6 +75,8 @@ def get_cache_key(video_bytes=None, image_bytes=None, query=None):
             {"name": "Cool Cap", "price": 2500, "description": "A stylish cap for all seasons.", "category": "Accessories", "image_urls": ["...", "...", "...", "..."], "matched_images": [{"image_url": "...", "image_hash": "...", "similarity": 0.92}]}
         ]}}}},
         400: {"description": "Bad request.", "content": {"application/json": {"example": {"status": "error", "message": "Provide either an image or a video, not both."}}}},
+        413: {"description": "File too large.", "content": {"application/json": {"example": {"detail": "File is too large"}}}},
+        415: {"description": "Unsupported file type.", "content": {"application/json": {"example": {"detail": "File type not allowed"}}}},
         500: {"description": "Internal server error.", "content": {"application/json": {"example": {"status": "error", "message": "Error message."}}}},
     },
 )
@@ -62,6 +89,13 @@ async def search_products(
     try:
         if (image is not None and video is not None) or (image is None and video is None):
             raise HTTPException(status_code=400, detail={"status": "error", "message": "Provide either an image or a video, not both."})
+        
+        # Validate uploaded files
+        if image is not None:
+            validate_file(image, settings.MAX_FILE_SIZE, settings.ALLOWED_IMAGE_TYPES)
+        if video is not None:
+            validate_file(video, settings.MAX_FILE_SIZE, settings.ALLOWED_VIDEO_TYPES)
+        
         products_col = get_products_collection()
         mongo_filter = {}
         if query:

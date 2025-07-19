@@ -3,7 +3,6 @@
 import FAQSection from "@/components/faq-section"
 import FeatureGrid from "@/components/feature-grid"
 import IntegrationShowcase from "@/components/integration-showcase"
-import PricingSection from "@/components/pricing-section"
 import ProcessSteps from "@/components/process-steps"
 import ProductLogo from "@/components/product-logo"
 import StatsSection from "@/components/stats-section"
@@ -33,12 +32,28 @@ const staggerContainer = {
 export default function LandingPage() {
   const { scrollYProgress } = useScroll()
   const heroRef = useRef<HTMLElement>(null)
+  const featuresRef = useRef<HTMLElement>(null)
+  const howItWorksRef = useRef<HTMLElement>(null)
+  const testimonialsRef = useRef<HTMLElement>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.8])
   const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.95])
+
+  // Stacked sections transforms
+  const featuresY = useTransform(scrollYProgress, [0.2, 0.5], [0, -50])
+  const featuresOpacity = useTransform(scrollYProgress, [0.2, 0.5], [0.8, 1])
+  const featuresScale = useTransform(scrollYProgress, [0.2, 0.5], [0.95, 1])
+
+  const howItWorksY = useTransform(scrollYProgress, [0.4, 0.7], [0, -50])
+  const howItWorksOpacity = useTransform(scrollYProgress, [0.4, 0.7], [0.8, 1])
+  const howItWorksScale = useTransform(scrollYProgress, [0.4, 0.7], [0.95, 1])
+
+  const testimonialsY = useTransform(scrollYProgress, [0.6, 0.9], [0, -50])
+  const testimonialsOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0.8, 1])
+  const testimonialsScale = useTransform(scrollYProgress, [0.6, 0.9], [0.95, 1])
 
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
   const x = useSpring(0, springConfig)
@@ -126,7 +141,7 @@ export default function LandingPage() {
             </motion.div>
 
             <div className="hidden md:flex items-center space-x-8">
-              {["Features", "How it works", "Pricing", "Support"].map((item, index) => (
+              {["Features", "How it works", "Support"].map((item, index) => (
                 <motion.a
                   key={item}
                   href={`#${item.toLowerCase().replace(" ", "-")}`}
@@ -148,13 +163,6 @@ export default function LandingPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden sm:inline-flex text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              >
-                Sign in
-              </Button>
               <motion.div
                 whileHover={{
                   scale: 1.05,
@@ -165,7 +173,9 @@ export default function LandingPage() {
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-lg border-0"
+                  onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                 >
+                  <MessageCircle className="w-4 h-4 mr-2" />
                   Get started
                 </Button>
               </motion.div>
@@ -255,9 +265,10 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-xl px-8 py-4 text-lg font-semibold rounded-full"
+                    onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                   >
                     <MessageCircle className="w-5 h-5 mr-3" />
-                    Start Free Trial
+                    Start Free Today
                     <motion.div
                       className="ml-3"
                       animate={{ x: [0, 4, 0] }}
@@ -301,7 +312,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <TrendingUp className="w-4 h-4 text-purple-600" />
-                  <span>300% avg. sales boost</span>
+                  <span>100% free platform</span>
                 </div>
               </motion.div>
             </div>
@@ -346,73 +357,85 @@ export default function LandingPage() {
         <IntegrationShowcase />
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-32 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
+      {/* Sticky Container for Stacked Sections */}
+      <div className="relative">
+        {/* Features Section */}
+        <motion.section 
+          id="features" 
+          className="py-32 bg-white relative sticky top-0 z-10" 
+          ref={featuresRef}
+          style={{ y: featuresY, opacity: featuresOpacity, scale: featuresScale }}
+        >
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <motion.div
-              className="inline-flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-medium mb-6"
-              whileHover={{ scale: 1.05 }}
+              className="text-center mb-20"
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Powerful Features</span>
+              <motion.div
+                className="inline-flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-medium mb-6"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Powerful Features</span>
+              </motion.div>
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+                Everything you need to dominate
+                <br />
+                <span className="text-red-600">{project_name}</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                From AI-powered conversations to advanced analytics, {project_name} provides enterprise-grade tools that scale with
+                your business ambitions.
+              </p>
             </motion.div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Everything you need to dominate
-              <br />
-              <span className="text-red-600">{project_name}</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              From AI-powered conversations to advanced analytics, {project_name} provides enterprise-grade tools that scale with
-              your business ambitions.
-            </p>
-          </motion.div>
 
-          <FeatureGrid />
-        </div>
-      </section>
+            <FeatureGrid />
+          </div>
+        </motion.section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="py-32 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              From setup to success in
-              <span className="text-red-600"> 3 simple steps</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Our streamlined onboarding gets you selling in minutes, not hours. Join thousands of businesses already
-              thriving on WhatsApp.
-            </p>
-          </motion.div>
+        {/* How it works */}
+        <motion.section 
+          id="how-it-works" 
+          className="py-32 bg-gradient-to-br from-gray-50 to-white sticky top-0 z-20" 
+          ref={howItWorksRef}
+          style={{ y: howItWorksY, opacity: howItWorksOpacity, scale: howItWorksScale }}
+        >
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <motion.div
+              className="text-center mb-20"
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+                From setup to success in
+                <span className="text-red-600"> 3 simple steps</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Our streamlined onboarding gets you selling in minutes, not hours. Join thousands of businesses already
+                thriving on WhatsApp.
+              </p>
+            </motion.div>
 
-          <ProcessSteps />
-        </div>
-      </section>
+            <ProcessSteps />
+          </div>
+        </motion.section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-32 bg-white">
-        <PricingSection />
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <TestimonialSection />
-        </div>
-      </section>
+        {/* Testimonials */}
+        <motion.section 
+          className="py-32 bg-gray-50 sticky top-0 z-30" 
+          ref={testimonialsRef}
+          style={{ y: testimonialsY, opacity: testimonialsOpacity, scale: testimonialsScale }}
+        >
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <TestimonialSection />
+          </div>
+        </motion.section>
+      </div>
 
       {/* FAQ */}
       <section id="support" className="py-32 bg-white">
@@ -454,10 +477,10 @@ export default function LandingPage() {
               <span>Join 50,000+ successful businesses</span>
             </motion.div>
 
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Ready to 10x your sales?</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Ready to boost your sales for free?</h2>
             <p className="text-xl text-red-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Start your free trial today and discover why businesses are switching to conversational commerce. No
-              credit card required.
+              Join thousands of businesses using our free WhatsApp commerce platform. No hidden fees, no subscriptions — 
+              just like Jumia, we make money when you make money.
             </p>
 
             <motion.div
@@ -478,9 +501,10 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   className="bg-white text-red-600 hover:bg-gray-100 px-10 py-4 text-lg font-semibold rounded-full shadow-xl"
+                  onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                 >
                   <MessageCircle className="w-5 h-5 mr-3" />
-                  Start Free Trial
+                  Start Free Today
                   <ArrowRight className="w-5 h-5 ml-3" />
                 </Button>
               </motion.div>
@@ -490,6 +514,7 @@ export default function LandingPage() {
                   variant="outline"
                   size="lg"
                   className="border-2 border-white text-white hover:bg-white hover:text-red-600 px-10 py-4 text-lg font-semibold rounded-full bg-transparent backdrop-blur-sm"
+                  onClick={() => window.open('https://wa.me/2347081643714?text=Hi! I would like to book a demo of your platform.', '_blank')}
                 >
                   <Play className="w-5 h-5 mr-3" />
                   Book Demo
@@ -504,7 +529,7 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.5 }}
             >
-              ✨ Setup in 5 minutes • 💳 No credit card required • 🚀 Cancel anytime
+              ✨ Setup in 5 minutes • 💳 Completely free • 🚀 No hidden fees
             </motion.p>
           </motion.div>
         </div>
@@ -546,7 +571,7 @@ export default function LandingPage() {
             {[
               {
                 title: "Product",
-                links: ["Features", "Pricing", "API", "Integrations", "Security", "Enterprise"],
+                links: ["Features", "API", "Integrations", "Security", "Enterprise"],
               },
               {
                 title: "Company",
