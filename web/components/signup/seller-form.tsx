@@ -1,17 +1,17 @@
 "use client"
 
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { Store, Upload } from 'lucide-react'
-import { FormData } from './types'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Upload, Store } from 'lucide-react'
+import { SignupFormData } from './types'
 
 interface SellerFormProps {
-  formData: FormData
-  onFormDataChange: (field: keyof FormData, value: any) => void
+  formData: SignupFormData
+  onFormDataChange: (field: keyof SignupFormData, value: any) => void
   allCategories: string[]
   onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }

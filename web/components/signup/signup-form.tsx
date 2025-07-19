@@ -1,17 +1,22 @@
 "use client"
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Store, User } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Loader2, Upload, User, Store } from 'lucide-react'
 import { SellerForm } from './seller-form'
-import { FormData } from './types'
+import { SignupFormData } from './types'
 
 interface SignupFormProps {
-  formData: FormData
-  onFormDataChange: (field: keyof FormData, value: any) => void
+  formData: SignupFormData
+  onFormDataChange: (field: keyof SignupFormData, value: any) => void
   onSubmit: (e: React.FormEvent) => Promise<void>
   loading: boolean
   error: string

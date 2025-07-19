@@ -1,4 +1,4 @@
-export interface FormData {
+export interface SignupFormData {
   name: string
   email: string
   phoneNumber: string
@@ -11,7 +11,7 @@ export interface FormData {
 }
 
 export interface SignupState {
-  formData: FormData
+  formData: SignupFormData
   allCategories: string[]
   loading: boolean
   success: boolean

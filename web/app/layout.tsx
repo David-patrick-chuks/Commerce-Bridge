@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from 'next';
 import { project_name } from '../config';
 import './globals.css';
@@ -5,7 +6,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: project_name,
   description: `${project_name} is a WhatsApp-first e-commerce platform for seamless shopping and selling experiences.`,
-  generator: 'v0.dev',
+  generator: 'taja-model',
   openGraph: {
     title: project_name,
     description: `${project_name} is a WhatsApp-first e-commerce platform for seamless shopping and selling experiences.`,
@@ -38,7 +39,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

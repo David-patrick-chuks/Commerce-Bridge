@@ -3,8 +3,10 @@
 import { SignupForm } from '@/components/signup/signup-form'
 import { StatusCards } from '@/components/signup/status-cards'
 import { useSignup } from '@/components/signup/use-signup'
+import { Loader2 } from 'lucide-react'
+import { Suspense } from 'react'
 
-export default function SignupPage() {
+function SignupContent() {
   const {
     formData,
     allCategories,
@@ -40,5 +42,20 @@ export default function SignupPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="text-lg font-medium">Loading...</span>
+        </div>
+      </div>
+    }>
+      <SignupContent />
+    </Suspense>
   )
 } 

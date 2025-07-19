@@ -1,6 +1,6 @@
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { FormData, SignupState } from './types'
+import { SignupFormData, SignupState } from './types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -69,7 +69,7 @@ export function useSignup() {
       .catch(() => setState(prev => ({ ...prev, csrfToken: null })))
   }, [code])
 
-  const updateFormData = (field: keyof FormData, value: any) => {
+  const updateFormData = (field: keyof SignupFormData, value: any) => {
     setState(prev => ({
       ...prev,
       formData: { ...prev.formData, [field]: value }
