@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { project_name } from "../config";
+import { project_name } from "../../config";
 import { parseStructured } from "./client";
 
 /**

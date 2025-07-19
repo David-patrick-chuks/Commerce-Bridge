@@ -8,8 +8,8 @@ import { project_name } from '../config'
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-20">
-      <div className="container mx-auto px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-12 mb-16">
+      <div className="container mx-auto">
+        <div className="grid md:grid-cols-3 gap-12 mb-16">
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0, y: 20 }}
@@ -22,7 +22,7 @@ export default function Footer() {
               <span className="text-2xl font-bold">{project_name}</span>
             </div>
             <p className="text-gray-400 leading-relaxed text-lg">
-              Revolutionizing commerce through intelligent WhatsApp conversations. Built for the future of business.
+              The first AI-powered WhatsApp marketplace. Making e-commerce as simple as sending a message.
             </p>
             <div className="flex space-x-4">
               {[MessageCircle, TrendingUp, Shield].map((Icon, index) => (
@@ -41,16 +41,12 @@ export default function Footer() {
 
           {[
             {
-              title: "Product",
-              links: ["Features", "API", "Integrations", "Security", "Enterprise"],
-            },
-            {
-              title: "Company",
-              links: ["About", "Blog", "Careers", "Press", "Partners", "Investors"],
+              title: "Platform",
+              links: ["How it works", "Features", "Security"],
             },
             {
               title: "Support",
-              links: ["Help Center", "Contact", "Status", "Community", "Documentation", "Tutorials"],
+              links: ["Help Center", "Contact Us", "WhatsApp Support"],
             },
           ].map((section, sectionIndex) => (
             <motion.div
@@ -87,10 +83,10 @@ export default function Footer() {
           transition={{ duration: 0.6 }}
         >
           <p className="text-gray-400 text-sm">
-            © 2024 {project_name} Technologies Inc. All rights reserved. Made with ❤️ for the future of commerce.
+            © 2024 {project_name}. All rights reserved. Made with ❤️ for the future of commerce.
           </p>
           <div className="flex items-center space-x-8 mt-4 md:mt-0">
-            {["Privacy", "Terms", "Cookies", "GDPR"].map((item) => (
+            {["Privacy", "Terms"].map((item) => (
               <motion.a
                 key={item}
                 href="#"

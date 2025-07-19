@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { ArrowRight, MessageCircle, Play, TrendingUp } from "lucide-react"
+import { ArrowRight, MessageCircle, TrendingUp } from "lucide-react"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 32 },
@@ -37,7 +37,7 @@ export default function CTASection() {
         }}
       />
 
-      <div className="container mx-auto px-6 lg:px-8 text-center relative z-10">
+      <div className="container mx-auto text-center relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -49,13 +49,13 @@ export default function CTASection() {
             whileHover={{ scale: 1.05 }}
           >
             <TrendingUp className="w-4 h-4" />
-            <span>Join 50,000+ successful businesses</span>
+            <span>Join the WhatsApp commerce revolution</span>
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Ready to boost your sales for free?</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Ready to start selling on WhatsApp?</h2>
           <p className="text-xl text-green-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of businesses using our free WhatsApp commerce platform. No hidden fees, no subscriptions — 
-            just like Jumia, we make money when you make money.
+            Start your free WhatsApp store today. No credit card required, no hidden fees — 
+            just simple, conversational commerce.
           </p>
 
           <motion.div
@@ -89,10 +89,10 @@ export default function CTASection() {
                 variant="outline"
                 size="lg"
                 className="border-2 border-white text-white hover:bg-white hover:text-brand-primary px-10 py-4 text-lg font-semibold rounded-full bg-transparent backdrop-blur-sm"
-                onClick={() => window.open('https://wa.me/2347081643714?text=Hi! I would like to book a demo of your platform.', '_blank')}
+                onClick={() => window.open('https://wa.me/2347081643714?text=Hi! I have questions about starting my WhatsApp store.', '_blank')}
               >
-                <Play className="w-5 h-5 mr-3" />
-                Book Demo
+                <MessageCircle className="w-5 h-5 mr-3" />
+                Ask Questions
               </Button>
             </motion.div>
           </motion.div>
@@ -104,7 +104,7 @@ export default function CTASection() {
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
           >
-            ✨ Setup in 5 minutes • 💳 Completely free • 🚀 No hidden fees
+            ✨ No credit card required • 🚀 Completely free • 💬 Start selling in minutes
           </motion.p>
         </motion.div>
       </div>

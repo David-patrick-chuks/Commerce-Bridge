@@ -22,7 +22,7 @@ export default function Navigation({ isScrolled }: NavigationProps) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
     >
-      <div className="container mx-auto px-6 lg:px-8">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between h-16">
           <motion.div
             className="flex items-center space-x-3"

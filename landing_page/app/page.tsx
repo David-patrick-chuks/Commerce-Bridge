@@ -44,13 +44,13 @@ export default function LandingPage() {
       <HeroSection />
 
       {/* Integration Showcase */}
-      <section className="py-16 bg-gray-50/50">
+      <section className="py-20 bg-gray-50/50">
         <IntegrationShowcase />
       </section>
 
       {/* Features Section */}
       <section id="features" className="py-32 bg-white relative">
-        <div className="container mx-auto px-6 lg:px-8">
+        <div className="container mx-auto">
           <motion.div
             className="text-center mb-20"
             initial={{ opacity: 0, y: 32 }}
@@ -82,7 +82,7 @@ export default function LandingPage() {
 
       {/* How it works */}
       <section id="how-it-works" className="py-32 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto px-6 lg:px-8">
+        <div className="container mx-auto">
           <motion.div
             className="text-center mb-20"
             initial={{ opacity: 0, y: 32 }}
@@ -95,8 +95,7 @@ export default function LandingPage() {
               <span className="text-brand-primary"> 3 simple steps</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Our streamlined onboarding gets you selling in minutes, not hours. Join thousands of businesses already
-              thriving on WhatsApp.
+              Our streamlined process gets you started in minutes. Whether you're selling or shopping, everything happens through WhatsApp conversations.
             </p>
           </motion.div>
 
@@ -106,14 +105,14 @@ export default function LandingPage() {
 
       {/* Testimonials */}
       <section className="py-32 bg-gray-50">
-        <div className="container mx-auto px-6 lg:px-8">
+        <div className="container mx-auto">
           <TestimonialSection />
         </div>
       </section>
 
       {/* FAQ */}
       <section id="support" className="py-32 bg-white">
-        <div className="container mx-auto px-6 lg:px-8">
+        <div className="container mx-auto">
           <FAQSection />
         </div>
       </section>

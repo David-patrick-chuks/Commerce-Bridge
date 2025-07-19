@@ -4,12 +4,12 @@ import { motion } from "framer-motion"
 import { MessageCircle, ShoppingCart, Star, Zap, Heart, Gift } from "lucide-react"
 
 const elements = [
-  { Icon: MessageCircle, delay: 0, x: "10%", y: "20%", color: "text-red-300" },
-  { Icon: ShoppingCart, delay: 2, x: "85%", y: "15%", color: "text-red-400" },
-  { Icon: Star, delay: 4, x: "15%", y: "70%", color: "text-red-200" },
-  { Icon: Zap, delay: 6, x: "80%", y: "75%", color: "text-red-500" },
-  { Icon: Heart, delay: 8, x: "5%", y: "50%", color: "text-red-300" },
-  { Icon: Gift, delay: 10, x: "90%", y: "45%", color: "text-red-400" },
+  { Icon: MessageCircle, delay: 0, x: "10%", y: "20%", color: "text-brand-primary/30" },
+  { Icon: ShoppingCart, delay: 2, x: "85%", y: "15%", color: "text-brand-secondary/40" },
+  { Icon: Star, delay: 4, x: "15%", y: "70%", color: "text-brand-accent/20" },
+  { Icon: Zap, delay: 6, x: "80%", y: "75%", color: "text-brand-primary/50" },
+  { Icon: Heart, delay: 8, x: "5%", y: "50%", color: "text-brand-secondary/30" },
+  { Icon: Gift, delay: 10, x: "90%", y: "45%", color: "text-brand-accent/40" },
 ]
 
 export default function FloatingElements() {

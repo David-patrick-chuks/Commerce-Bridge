@@ -12,8 +12,8 @@ export default function ProductLogo({ className = "w-8 h-8" }: ProductLogoProps)
       <svg viewBox="0 0 40 40" className="w-full h-full">
         <defs>
           <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#dc2626" />
-            <stop offset="100%" stopColor="#ef4444" />
+            <stop offset="0%" stopColor="#22c55e" />
+            <stop offset="100%" stopColor="#16a34a" />
           </linearGradient>
         </defs>
 

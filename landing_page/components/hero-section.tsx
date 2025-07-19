@@ -33,7 +33,7 @@ export default function HeroSection() {
   return (
     <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
       <motion.div
-        className="container mx-auto px-6 lg:px-8"
+        className="container mx-auto"
         style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
       >
         <motion.div
@@ -60,7 +60,7 @@ export default function HeroSection() {
                   }}
                 />
                 <Sparkles className="w-4 h-4 mr-2" />
-                Now in beta • Join 50,000+ early users
+                WhatsApp-first commerce platform
               </Badge>
             </motion.div>
 
@@ -69,7 +69,7 @@ export default function HeroSection() {
               {...fadeInUp}
               transition={{ delay: 0.2 }}
             >
-              The Future of{" "}
+              Shop & Sell Through{" "}
               <motion.span
                 className="bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary bg-clip-text text-transparent"
                 animate={{
@@ -84,9 +84,9 @@ export default function HeroSection() {
                   backgroundSize: "200% 100%",
                 }}
               >
-                Commerce
+                WhatsApp
               </motion.span>{" "}
-              is Conversational
+              Conversations
             </motion.h1>
 
             <motion.p
@@ -94,9 +94,8 @@ export default function HeroSection() {
               {...fadeInUp}
               transition={{ delay: 0.3 }}
             >
-              Transform your business with AI-powered WhatsApp commerce.
-              <span className="text-brand-primary font-semibold"> No apps, no websites</span> — just intelligent
-              conversations that convert browsers into buyers.
+              The complete e-commerce experience through intelligent WhatsApp conversations.
+              <span className="text-brand-primary font-semibold"> No apps, no websites</span> — just chat, shop, and sell seamlessly.
             </motion.p>
 
             <motion.div className="flex flex-col sm:flex-row gap-4 mb-12" {...fadeInUp} transition={{ delay: 0.4 }}>
@@ -135,7 +134,7 @@ export default function HeroSection() {
                   className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-full bg-white/80 backdrop-blur-sm"
                 >
                   <Play className="w-5 h-5 mr-3" />
-                  Watch Demo
+                  See How It Works
                 </Button>
               </motion.div>
             </motion.div>
@@ -150,15 +149,15 @@ export default function HeroSection() {
             >
               <div className="flex items-center space-x-2">
                 <Shield className="w-4 h-4 text-green-600" />
-                <span>Bank-level security</span>
+                <span>Secure payments</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Zap className="w-4 h-4 text-blue-600" />
-                <span>5-min setup</span>
+                <span>Quick setup</span>
               </div>
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-4 h-4 text-purple-600" />
-                <span>100% free platform</span>
+                <span>Free platform</span>
               </div>
             </motion.div>
           </div>

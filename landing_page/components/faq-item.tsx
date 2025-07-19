@@ -21,13 +21,13 @@ export default function FAQItem({ question, index }: FAQItemProps) {
       className="border border-gray-200 rounded-lg overflow-hidden"
     >
       <motion.button
-        className="w-full p-4 text-left flex items-center justify-between bg-white hover:bg-red-50 transition-colors"
+        className="w-full p-4 text-left flex items-center justify-between bg-white hover:bg-brand-light transition-colors"
         onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ backgroundColor: "#fef2f2" }}
+        whileHover={{ backgroundColor: "var(--brand-light)" }}
       >
         <span className="font-medium text-gray-900">{question}</span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
-          <ChevronDown className="w-5 h-5 text-red-600" />
+          <ChevronDown className="w-5 h-5 text-brand-primary" />
         </motion.div>
       </motion.button>
 

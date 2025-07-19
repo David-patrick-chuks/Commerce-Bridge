@@ -1,23 +1,23 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { CreditCard, MessageCircle, ShoppingCart } from "lucide-react"
+import { Image, MessageCircle, Zap } from "lucide-react"
 
 const steps = [
   {
     icon: MessageCircle,
-    title: "Start Conversation",
-    description: "Customer messages your WhatsApp business number to browse products and ask questions.",
+    title: "Start with WhatsApp",
+    description: "Click the web link to create your account, then start chatting with the Taja bot on WhatsApp.",
   },
   {
-    icon: ShoppingCart,
-    title: "Browse & Select",
-    description: "AI assistant shows products, handles queries, and helps customers make informed decisions.",
+    icon: Image,
+    title: "Upload & Search",
+    description: "Sellers upload product photos. Customers search by uploading images of what they want using AI.",
   },
   {
-    icon: CreditCard,
-    title: "Complete Purchase",
-    description: "Secure payment processing with instant confirmation and order tracking.",
+    icon: Zap,
+    title: "Shop & Sell",
+    description: "Complete purchases through chat. Get digital receipts. Manage your store all through WhatsApp.",
   },
 ]
 

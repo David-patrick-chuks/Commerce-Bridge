@@ -7,34 +7,44 @@ import { project_name } from '../config';
 
 const faqs = [
   {
-    question: `How does ${project_name} integrate with my existing business?`,
+    question: `How does ${project_name} work?`,
     answer:
-      `${project_name} seamlessly integrates with your current e-commerce platforms like Shopify, WooCommerce, and more. Our API connects to your inventory, payment systems, and customer data to provide a unified experience. Setup takes just 5 minutes with our guided onboarding process.`,
+      `${project_name} is a WhatsApp-first marketplace where everything happens through chat. Customers browse products, search using images/videos/text, and buy by chatting with our AI bot. Sellers upload products by sending photos and details to the bot. No website or app needed - just WhatsApp!`,
   },
   {
-    question: `What makes ${project_name}'s AI different from other chatbots?`,
+    question: `What makes ${project_name} different from other e-commerce platforms?`,
     answer:
-      `Our AI is specifically trained for commerce conversations. Unlike generic chatbots, ${project_name} understands product catalogs, handles complex queries about specifications, manages inventory in real-time, and can complete full sales transactions. It learns from every interaction to improve conversion rates.`,
+      `${project_name} is the first AI-powered WhatsApp marketplace. Unlike traditional platforms that require websites or apps, ${project_name} operates entirely through WhatsApp conversations. Our AI bot handles product browsing, search, payments, and order management - making e-commerce as simple as sending a message.`,
   },
   {
-    question: `Is my customer data secure with ${project_name}?`,
+    question: `Can I search for products using images, videos, or text?`,
     answer:
-      "Absolutely. We use bank-level encryption, comply with GDPR and CCPA regulations, and never store sensitive payment information. All data is encrypted in transit and at rest. We're SOC 2 Type II certified and undergo regular security audits.",
+      `Yes! ${project_name} features AI-powered search. Customers can upload product images, videos, or describe what they're looking for, and our AI will find similar items in the catalog. Sellers can also upload product images and videos, and our system uses AI to prevent duplicate listings and make products easily searchable.`,
   },
   {
-    question: "Can I customize the AI responses for my brand?",
+    question: `How do I start selling on ${project_name}?`,
     answer:
-      "Yes! You can train the AI with your brand voice, product knowledge, and specific responses. Upload your brand guidelines, FAQs, and product information. The AI will maintain your brand personality while handling customer conversations professionally.",
+      "Getting started is simple! Click the web link to create your seller account, then start uploading products by sending photos and details to the ${project_name} bot on WhatsApp. The AI will help you add product names, prices, and descriptions. No technical knowledge required!",
   },
   {
-    question: `What's the average ROI businesses see with ${project_name}?`,
+    question: `Is ${project_name} really free to use?`,
     answer:
-      "Our customers typically see a 300% increase in conversion rates and 40% reduction in customer service costs within the first 3 months. The average ROI is 500% in the first year, with some businesses seeing returns as high as 1000%.",
+      "Yes! ${project_name} is completely free to use. There are no hidden fees, subscriptions, or monthly charges. You only pay when you successfully complete a sale through transaction fees.",
   },
   {
-    question: `Do I need technical knowledge to set up ${project_name}?`,
+    question: `How secure are payments on ${project_name}?`,
     answer:
-      "Not at all! Our no-code setup process guides you through everything. Connect your WhatsApp Business account, sync your product catalog, and you're ready to go. Our support team provides free onboarding assistance for all plans.",
+      "Payments are processed securely through Paystack, a trusted payment gateway. We use end-to-end encryption and never store sensitive payment information. After successful payment, customers receive a digital receipt image via WhatsApp for their records.",
+  },
+  {
+    question: `What if I need help or have issues?`,
+    answer:
+      "Our AI bot provides intelligent customer support and can automatically escalate complex issues to human agents. You can also contact our support team directly through WhatsApp. We're here to help you succeed!",
+  },
+  {
+    question: `Can I manage multiple stores on ${project_name}?`,
+    answer:
+      `Yes! ${project_name} supports multi-store management. You can run multiple stores from a single WhatsApp account, each with its own product catalog, inventory, and analytics. Perfect for businesses with different product lines or locations.`,
   },
 ]
 
@@ -53,7 +63,7 @@ export default function FAQSection() {
         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Frequently asked questions</h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Everything you need to know about {project_name}. Can't find what you're looking for?
-          <a href="#" className="text-red-600 hover:text-red-700 font-semibold ml-1">
+          <a href="#" className="text-brand-primary hover:text-brand-dark font-semibold ml-1">
             Chat with our team
           </a>
         </p>

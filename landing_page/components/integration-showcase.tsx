@@ -18,7 +18,7 @@ export default function IntegrationShowcase() {
   const duplicatedIntegrations = [...integrations, ...integrations]
 
   return (
-    <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <div className="container mx-auto">
       <motion.div
         className="text-center mb-12"
         initial={{ opacity: 0, y: 20 }}
