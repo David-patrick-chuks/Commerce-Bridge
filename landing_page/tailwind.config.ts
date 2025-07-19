@@ -62,7 +62,35 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			// Custom brand colors for easy management
+  			brand: {
+  				primary: 'var(--brand-primary)',
+  				secondary: 'var(--brand-secondary)',
+  				accent: 'var(--brand-accent)',
+  				light: 'var(--brand-light)',
+  				dark: 'var(--brand-dark)',
+  				gradient: {
+  					from: 'var(--brand-gradient-from)',
+  					to: 'var(--brand-gradient-to)',
+  					via: 'var(--brand-gradient-via)'
+  				}
   			}
+  		},
+  		spacing: {
+  			'18': '4.5rem',
+  			'88': '22rem',
+  			'128': '32rem',
+  		},
+  		container: {
+  			center: true,
+  			padding: {
+  				DEFAULT: '1.5rem',
+  				sm: '2rem',
+  				lg: '4rem',
+  				xl: '5rem',
+  				'2xl': '6rem',
+  			},
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

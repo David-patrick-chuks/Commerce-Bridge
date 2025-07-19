@@ -32,28 +32,12 @@ const staggerContainer = {
 export default function LandingPage() {
   const { scrollYProgress } = useScroll()
   const heroRef = useRef<HTMLElement>(null)
-  const featuresRef = useRef<HTMLElement>(null)
-  const howItWorksRef = useRef<HTMLElement>(null)
-  const testimonialsRef = useRef<HTMLElement>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.8])
   const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.95])
-
-  // Stacked sections transforms
-  const featuresY = useTransform(scrollYProgress, [0.2, 0.5], [0, -50])
-  const featuresOpacity = useTransform(scrollYProgress, [0.2, 0.5], [0.8, 1])
-  const featuresScale = useTransform(scrollYProgress, [0.2, 0.5], [0.95, 1])
-
-  const howItWorksY = useTransform(scrollYProgress, [0.4, 0.7], [0, -50])
-  const howItWorksOpacity = useTransform(scrollYProgress, [0.4, 0.7], [0.8, 1])
-  const howItWorksScale = useTransform(scrollYProgress, [0.4, 0.7], [0.95, 1])
-
-  const testimonialsY = useTransform(scrollYProgress, [0.6, 0.9], [0, -50])
-  const testimonialsOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0.8, 1])
-  const testimonialsScale = useTransform(scrollYProgress, [0.6, 0.9], [0.95, 1])
 
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
   const x = useSpring(0, springConfig)
@@ -84,7 +68,7 @@ export default function LandingPage() {
       {/* Animated background elements */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-red-500/5 rounded-full blur-3xl"
+          className="absolute top-20 left-10 w-72 h-72 bg-green-500/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -134,7 +118,7 @@ export default function LandingPage() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              <ProductLogo className="w-8 h-8" />
+              <ProductLogo className="w-8 h-8  text-green-400" />
               <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 {project_name}
               </span>
@@ -145,14 +129,14 @@ export default function LandingPage() {
                 <motion.a
                   key={item}
                   href={`#${item.toLowerCase().replace(" ", "-")}`}
-                  className="text-sm font-medium text-gray-600 hover:text-red-600 transition-all duration-300 relative group"
+                  className="text-sm font-medium text-gray-600 hover:text-green-600 transition-all duration-300 relative group"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index, duration: 0.5 }}
                   whileHover={{ y: -2 }}
                 >
                   {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-300" />
                 </motion.a>
               ))}
             </div>
@@ -166,13 +150,13 @@ export default function LandingPage() {
               <motion.div
                 whileHover={{
                   scale: 1.05,
-                  boxShadow: "0 10px 30px rgba(239, 68, 68, 0.3)",
+                  boxShadow: "0 10px 30px rgba(34, 197, 94, 0.3)",
                 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Button
                   size="sm"
-                  className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-lg border-0"
+                  className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white shadow-lg border-0"
                   onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
@@ -200,10 +184,10 @@ export default function LandingPage() {
               <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
                 <Badge
                   variant="secondary"
-                  className="mb-8 bg-gradient-to-r from-red-50 to-pink-50 text-red-700 border-red-200/50 hover:bg-red-100 px-4 py-2 text-sm font-medium"
+                  className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:bg-green-100 px-4 py-2 text-sm font-medium"
                 >
                   <motion.div
-                    className="w-2 h-2 bg-red-500 rounded-full mr-3"
+                    className="w-2 h-2 bg-green-500 rounded-full mr-3"
                     animate={{
                       scale: [1, 1.5, 1],
                       opacity: [1, 0.5, 1],
@@ -225,7 +209,7 @@ export default function LandingPage() {
               >
                 The Future of{" "}
                 <motion.span
-                  className="bg-gradient-to-r from-red-600 via-pink-600 to-red-600 bg-clip-text text-transparent"
+                  className="bg-gradient-to-r from-green-600 via-emerald-600 to-green-600 bg-clip-text text-transparent"
                   animate={{
                     backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                   }}
@@ -249,7 +233,7 @@ export default function LandingPage() {
                 transition={{ delay: 0.3 }}
               >
                 Transform your business with AI-powered WhatsApp commerce.
-                <span className="text-red-600 font-semibold"> No apps, no websites</span> — just intelligent
+                <span className="text-green-600 font-semibold"> No apps, no websites</span> — just intelligent
                 conversations that convert browsers into buyers.
               </motion.p>
 
@@ -257,14 +241,14 @@ export default function LandingPage() {
                 <motion.div
                   whileHover={{
                     scale: 1.05,
-                    boxShadow: "0 20px 40px rgba(239, 68, 68, 0.3)",
+                    boxShadow: "0 20px 40px rgba(34, 197, 94, 0.3)",
                     y: -2,
                   }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white shadow-xl px-8 py-4 text-lg font-semibold rounded-full"
+                    className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white shadow-xl px-8 py-4 text-lg font-semibold rounded-full"
                     onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                   >
                     <MessageCircle className="w-5 h-5 mr-3" />
@@ -324,7 +308,7 @@ export default function LandingPage() {
               transition={{ duration: 1, delay: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
             >
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-pink-400/20 rounded-3xl blur-3xl"
+                className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 rounded-3xl blur-3xl"
                 animate={{
                   scale: [1, 1.1, 1],
                   opacity: [0.3, 0.5, 0.3],
@@ -357,85 +341,68 @@ export default function LandingPage() {
         <IntegrationShowcase />
       </section>
 
-      {/* Sticky Container for Stacked Sections */}
-      <div className="relative">
-        {/* Features Section */}
-        <motion.section 
-          id="features" 
-          className="py-32 bg-white relative sticky top-0 z-10" 
-          ref={featuresRef}
-          style={{ y: featuresY, opacity: featuresOpacity, scale: featuresScale }}
-        >
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      {/* Features Section */}
+      <section id="features" className="py-32 bg-white relative">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div
+            className="text-center mb-20"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
             <motion.div
-              className="text-center mb-20"
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              className="inline-flex items-center space-x-2 bg-green-50 text-green-600 px-4 py-2 rounded-full text-sm font-medium mb-6"
+              whileHover={{ scale: 1.05 }}
             >
-              <motion.div
-                className="inline-flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-medium mb-6"
-                whileHover={{ scale: 1.05 }}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Powerful Features</span>
-              </motion.div>
-              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-                Everything you need to dominate
-                <br />
-                <span className="text-red-600">{project_name}</span>
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                From AI-powered conversations to advanced analytics, {project_name} provides enterprise-grade tools that scale with
-                your business ambitions.
-              </p>
+              <Sparkles className="w-4 h-4" />
+              <span>Powerful Features</span>
             </motion.div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              Everything you need to dominate
+              <br />
+              <span className="text-green-600">{project_name}</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              From AI-powered conversations to advanced analytics, {project_name} provides enterprise-grade tools that scale with
+              your business ambitions.
+            </p>
+          </motion.div>
 
-            <FeatureGrid />
-          </div>
-        </motion.section>
+          <FeatureGrid />
+        </div>
+      </section>
 
-        {/* How it works */}
-        <motion.section 
-          id="how-it-works" 
-          className="py-32 bg-gradient-to-br from-gray-50 to-white sticky top-0 z-20" 
-          ref={howItWorksRef}
-          style={{ y: howItWorksY, opacity: howItWorksOpacity, scale: howItWorksScale }}
-        >
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <motion.div
-              className="text-center mb-20"
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-                From setup to success in
-                <span className="text-red-600"> 3 simple steps</span>
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Our streamlined onboarding gets you selling in minutes, not hours. Join thousands of businesses already
-                thriving on WhatsApp.
-              </p>
-            </motion.div>
+      {/* How it works */}
+      <section id="how-it-works" className="py-32 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div
+            className="text-center mb-20"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              From setup to success in
+              <span className="text-green-600"> 3 simple steps</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Our streamlined onboarding gets you selling in minutes, not hours. Join thousands of businesses already
+              thriving on WhatsApp.
+            </p>
+          </motion.div>
 
-            <ProcessSteps />
-          </div>
-        </motion.section>
+          <ProcessSteps />
+        </div>
+      </section>
 
-        {/* Testimonials */}
-        <motion.section 
-          className="py-32 bg-gray-50 sticky top-0 z-30" 
-          ref={testimonialsRef}
-          style={{ y: testimonialsY, opacity: testimonialsOpacity, scale: testimonialsScale }}
-        >
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <TestimonialSection />
-          </div>
-        </motion.section>
-      </div>
+      {/* Testimonials */}
+      <section className="py-32 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <TestimonialSection />
+        </div>
+      </section>
 
       {/* FAQ */}
       <section id="support" className="py-32 bg-white">
@@ -445,7 +412,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 bg-gradient-to-r from-red-600 via-red-500 to-red-600 relative overflow-hidden">
+      <section className="py-32 bg-gradient-to-r from-green-600 via-green-500 to-green-600 relative overflow-hidden">
         <motion.div
           className="absolute inset-0 opacity-20"
           animate={{
@@ -478,7 +445,7 @@ export default function LandingPage() {
             </motion.div>
 
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Ready to boost your sales for free?</h2>
-            <p className="text-xl text-red-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-green-100 mb-10 max-w-2xl mx-auto leading-relaxed">
               Join thousands of businesses using our free WhatsApp commerce platform. No hidden fees, no subscriptions — 
               just like Jumia, we make money when you make money.
             </p>
@@ -500,7 +467,7 @@ export default function LandingPage() {
               >
                 <Button
                   size="lg"
-                  className="bg-white text-red-600 hover:bg-gray-100 px-10 py-4 text-lg font-semibold rounded-full shadow-xl"
+                  className="bg-white text-green-600 hover:bg-gray-100 px-10 py-4 text-lg font-semibold rounded-full shadow-xl"
                   onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                 >
                   <MessageCircle className="w-5 h-5 mr-3" />
@@ -513,7 +480,7 @@ export default function LandingPage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-2 border-white text-white hover:bg-white hover:text-red-600 px-10 py-4 text-lg font-semibold rounded-full bg-transparent backdrop-blur-sm"
+                  className="border-2 border-white text-white hover:bg-white hover:text-green-600 px-10 py-4 text-lg font-semibold rounded-full bg-transparent backdrop-blur-sm"
                   onClick={() => window.open('https://wa.me/2347081643714?text=Hi! I would like to book a demo of your platform.', '_blank')}
                 >
                   <Play className="w-5 h-5 mr-3" />
@@ -523,7 +490,7 @@ export default function LandingPage() {
             </motion.div>
 
             <motion.p
-              className="text-red-100 text-sm mt-6"
+              className="text-green-100 text-sm mt-6"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -547,7 +514,7 @@ export default function LandingPage() {
               transition={{ duration: 0.6 }}
             >
               <div className="flex items-center space-x-3">
-                <ProductLogo className="w-10 h-10 text-red-400" />
+                <ProductLogo className="w-10 h-10 text-green-400" />
                 <span className="text-2xl font-bold">{project_name}</span>
               </div>
               <p className="text-gray-400 leading-relaxed text-lg">
@@ -558,7 +525,7 @@ export default function LandingPage() {
                   <motion.a
                     key={index}
                     href="#"
-                    className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
+                    className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-green-400 hover:bg-gray-700 transition-all duration-300"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -596,7 +563,7 @@ export default function LandingPage() {
                     <li key={link}>
                       <motion.a
                         href="#"
-                        className="text-gray-400 hover:text-red-400 transition-colors duration-300"
+                        className="text-gray-400 hover:text-green-400 transition-colors duration-300"
                         whileHover={{ x: 4 }}
                       >
                         {link}
