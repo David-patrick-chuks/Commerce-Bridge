@@ -17,7 +17,7 @@ import {
 import { CartItem, UserSession } from '../../types/session.types';
 import { supportService } from '../../utils/ai/index';
 import { generateProductCollage } from '../../utils/banner-generator';
-import { project_name } from '../../utils/config';
+import { project_name } from '../../config';
 import { formatMonospace, formatWhatsAppBold, formatWhatsAppItalic } from '../../utils/text-formatter';
 import { chatSession } from '../session-manager';
 

@@ -152,7 +152,7 @@ export default function HeroSection() {
           </div>
 
           <motion.div
-            className="order-first lg:order-last"
+            className="order-last lg:order-last"
             initial={{ opacity: 0, x: 100, rotateY: -15 }}
             animate={{ opacity: 1, x: 0, rotateY: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}

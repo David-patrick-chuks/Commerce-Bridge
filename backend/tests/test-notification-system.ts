@@ -9,7 +9,7 @@ import {
     UnknownUserStats,
     UserNotificationsResponse
 } from '../src/types';
-import { project_name } from '../src/utils/config';
+import { project_name } from '../src/config';
 
 const BASE_URL = 'http://localhost:3001/api';
 
