@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import WhatsAppDemo from "@/components/whatsapp-demo"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { ArrowRight, ChevronDown, MessageCircle, Play, Shield, Sparkles, TrendingUp, Zap } from "lucide-react"
+import { ArrowRight, ChevronDown, MessageCircle, Shield, Sparkles, TrendingUp, Zap } from "lucide-react"
 import { useRef } from "react"
 
 const fadeInUp = {
@@ -37,7 +37,7 @@ export default function HeroSection() {
         style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
       >
         <motion.div
-          className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center"
+          className="grid lg:grid-cols-2 gap-20 lg:gap-32 items-center"
           variants={staggerContainer}
           initial="initial"
           animate="animate"
@@ -46,7 +46,7 @@ export default function HeroSection() {
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
               <Badge
                 variant="secondary"
-                className="mb-8 bg-gradient-to-r from-brand-light to-emerald-50 text-brand-primary border-brand-accent/50 hover:bg-brand-light px-4 py-2 text-sm font-medium"
+                className="mb-10 bg-gradient-to-r from-brand-light to-emerald-50 text-brand-primary border-brand-accent/50 hover:bg-brand-light px-4 py-2 text-sm font-medium"
               >
                 <motion.div
                   className="w-2 h-2 bg-brand-primary rounded-full mr-3"
@@ -65,7 +65,7 @@ export default function HeroSection() {
             </motion.div>
 
             <motion.h1
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-[1.1] mb-8"
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-[1.1] mb-10"
               {...fadeInUp}
               transition={{ delay: 0.2 }}
             >
@@ -90,7 +90,7 @@ export default function HeroSection() {
             </motion.h1>
 
             <motion.p
-              className="text-xl lg:text-2xl text-gray-600 mb-10 leading-relaxed"
+              className="text-xl lg:text-2xl text-gray-600 mb-12 leading-relaxed"
               {...fadeInUp}
               transition={{ delay: 0.3 }}
             >
@@ -98,7 +98,7 @@ export default function HeroSection() {
               <span className="text-brand-primary font-semibold"> No apps, no websites</span> — just chat, shop, and sell seamlessly.
             </motion.p>
 
-            <motion.div className="flex flex-col sm:flex-row gap-4 mb-12" {...fadeInUp} transition={{ delay: 0.4 }}>
+            <motion.div className="mb-16" {...fadeInUp} transition={{ delay: 0.4 }}>
               <motion.div
                 whileHover={{
                   scale: 1.05,
@@ -109,10 +109,10 @@ export default function HeroSection() {
               >
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-dark hover:to-brand-primary text-white shadow-xl px-8 py-4 text-lg font-semibold rounded-full"
+                  className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-dark hover:to-brand-primary text-white shadow-xl px-10 py-6 text-lg font-semibold rounded-full"
                   onClick={() => window.open('https://wa.me/2347081643714', '_blank')}
                 >
-                  <MessageCircle className="w-5 h-5 mr-3" />
+                  <MessageCircle className="w-6 h-6 mr-3" />
                   Start Free Today
                   <motion.div
                     className="ml-3"
@@ -122,19 +122,8 @@ export default function HeroSection() {
                       repeat: Number.POSITIVE_INFINITY,
                     }}
                   >
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-6 h-6" />
                   </motion.div>
-                </Button>
-              </motion.div>
-
-              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-full bg-white/80 backdrop-blur-sm"
-                >
-                  <Play className="w-5 h-5 mr-3" />
-                  See How It Works
                 </Button>
               </motion.div>
             </motion.div>
@@ -143,7 +132,7 @@ export default function HeroSection() {
 
             {/* Trust indicators */}
             <motion.div
-              className="flex items-center space-x-6 mt-12 text-sm text-gray-500"
+              className="flex items-center space-x-8 mt-16 text-sm text-gray-500"
               {...fadeInUp}
               transition={{ delay: 0.6 }}
             >
@@ -163,24 +152,10 @@ export default function HeroSection() {
           </div>
 
           <motion.div
-            className="relative"
             initial={{ opacity: 0, x: 100, rotateY: -15 }}
             animate={{ opacity: 1, x: 0, rotateY: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 rounded-3xl blur-3xl"
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3],
-                rotate: [0, 5, 0],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "reverse",
-              }}
-            />
             <WhatsAppDemo />
           </motion.div>
         </motion.div>

@@ -11,7 +11,18 @@
     ],
     "category": "Apparel",
     "stock": 10,
-    "seller": "64b7f8e2c2a4e3b1d5f9a123"
+    "seller": "64b7f8e2c2a4e3b1d5f9a123",
+    "weight_kg": 0.3,
+    "color": "Black/White",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "key_features": [
+      "100% Cotton",
+      "Long Sleeve Design",
+      "Graphic Print",
+      "Comfortable Fit",
+      "Machine Washable",
+      "Unisex Style"
+    ]
   },
   {
     "name": "Oversized Eagle Star T-Shirt (Assorted Colors)",
@@ -25,7 +36,18 @@
     ],
     "category": "Apparel",
     "stock": 12,
-    "seller": "64b7f8e2c2a4e3b1d5f9a123"
+    "seller": "64b7f8e2c2a4e3b1d5f9a123",
+    "weight_kg": 0.25,
+    "color": "Assorted (Yellow, Black, Purple, Green)",
+    "sizes": ["S", "M", "L", "XL"],
+    "key_features": [
+      "Oversized Fit",
+      "Eagle Head Print",
+      "Star Pattern Background",
+      "Multiple Color Options",
+      "Comfortable Material",
+      "Trendy Design"
+    ]
   },
   {
     "name": "Honeywell TurboForce Air Circulator Fan",
@@ -43,6 +65,19 @@
     ],
     "category": "Electronics",
     "stock": 20,
-    "seller": "64b7f8e2c2a4e3b1d5f9a123"
+    "seller": "64b7f8e2c2a4e3b1d5f9a123",
+    "weight_kg": 2.1,
+    "color": "White",
+    "sizes": null,
+    "key_features": [
+      "3 Speed Settings",
+      "90° Pivot Function",
+      "TurboForce Technology",
+      "Wall Mount Option",
+      "Easy to Clean",
+      "Compact Design",
+      "Energy Efficient",
+      "Quiet Operation"
+    ]
   }
 ] 

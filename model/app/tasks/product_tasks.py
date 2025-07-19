@@ -30,7 +30,7 @@ def update_progress(job_id, progress, message=""):
         redis_client.set(f"progress:{job_id}", json.dumps(progress_data), ex=3600)
 
 @celery_app.task(bind=True)
-def add_product_task(self, images_data, name, price, description, category):
+def add_product_task(self, images_data, name, price, description, category, weight_kg=None, color=None, sizes=None, key_features=None):
     job_id = self.request.id
     try:
         update_progress(job_id, 0, "Starting product addition...")
@@ -97,7 +97,7 @@ def add_product_task(self, images_data, name, price, description, category):
         
         update_progress(job_id, 90, "Saving product to database...")
         
-        # Create product document
+        # Create product document with new fields
         product_doc = {
             "name": name,
             "price": price,
@@ -107,6 +107,16 @@ def add_product_task(self, images_data, name, price, description, category):
             "image_hashes": image_hashes,
             "embeddings": embeddings,
         }
+        
+        # Add optional fields if provided
+        if weight_kg is not None:
+            product_doc["weight_kg"] = weight_kg
+        if color is not None:
+            product_doc["color"] = color
+        if sizes is not None:
+            product_doc["sizes"] = sizes
+        if key_features is not None:
+            product_doc["key_features"] = key_features
         
         # Insert into database
         products_col.insert_one(product_doc)

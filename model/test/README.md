@@ -7,6 +7,7 @@ This directory contains a comprehensive API test script (`api_test.py`) for test
   - Adds all products from `images_data/products.json` to the server
   - Uploads all images for each product with progress tracking
   - Tests duplicate detection and error handling
+  - Supports new product fields: weight, color, sizes, and key features
 - **AI Search Testing**
   - Runs search queries using images (`search1.jpg`, `search2.jpg`, `search3.jpg`)
   - Tests video search with `search-video1.mp4`
@@ -18,7 +19,7 @@ This directory contains a comprehensive API test script (`api_test.py`) for test
   - Visual progress indicators with emojis (🔄, ✅, ❌)
 - **Comprehensive Coverage**
   - Health and metrics endpoints
-  - Add product with multiple images
+  - Add product with multiple images and detailed product information
   - Image, video, and text search functionality
   - Error handling and edge cases
 
@@ -28,7 +29,7 @@ This directory contains a comprehensive API test script (`api_test.py`) for test
 - Taja server running with Celery worker
 - Redis server for progress tracking and caching
 - All product images, search images, and test video present in `images_data/Products/`
-- `products.json` in `images_data/` with product definitions
+- `products.json` in `images_data/` with product definitions including new fields
 
 ## Quick Start
 
@@ -68,7 +69,7 @@ The script will show progress updates like:
 - `GET /metrics` — Service metrics
 
 ### Product Management
-- `POST /add_product` — Add products with images
+- `POST /add_product` — Add products with images and detailed product information
 - `GET /add_product/progress/{job_id}` — Real-time progress tracking
 - `GET /add_product/job/{job_id}` — Job status and results
 
@@ -84,7 +85,7 @@ The script will show progress updates like:
 - **5%** - Processing images
 - **5-85%** - Per-image processing (embedding, upload, etc.)
 - **85%** - Checking results
-- **90%** - Saving to database
+- **90%** - Saving to database with product details
 - **100%** - Completion with summary
 
 ### Search Progress
@@ -105,10 +106,35 @@ The script will show progress updates like:
     ],
     "category": "Category Name",
     "stock": 10,
-    "seller": "SOME_SELLER_ID"
+    "seller": "SOME_SELLER_ID",
+    "weight_kg": 0.5,
+    "color": "Black",
+    "sizes": ["S", "M", "L", "XL"],
+    "key_features": [
+      "Feature 1",
+      "Feature 2",
+      "Feature 3"
+    ]
   }
 ]
 ```
+
+## New Product Fields
+
+### Required Fields
+- `name`: Product name
+- `price`: Product price (in cents/smallest currency unit)
+- `description`: Product description
+- `image`: Array of image file paths
+- `category`: Product category
+- `stock`: Available stock quantity
+- `seller`: Seller ID
+
+### Optional Fields (New)
+- `weight_kg`: Product weight in kilograms (float)
+- `color`: Product color (string, e.g., "Black", "Red", "Assorted")
+- `sizes`: Available sizes (array of strings, e.g., ["S", "M", "L"] or ["10", "11", "12"])
+- `key_features`: Product features and specifications (array of strings, e.g., ["100% Cotton", "Machine Washable"])
 
 ## Test Output Examples
 
@@ -142,7 +168,11 @@ Testing POST /search with image
   "matches": [
     {
       "name": "Found Product",
-      "similarity": 0.94
+      "similarity": 0.94,
+      "weight_kg": 0.5,
+      "color": "Black",
+      "sizes": ["S", "M", "L"],
+      "key_features": ["Feature 1", "Feature 2"]
     }
   ]
 }
@@ -179,6 +209,7 @@ images_data/
 - Cloudinary is used for image storage and hosting
 - Windows-compatible Celery configuration is used (`--pool=solo`)
 - Test results include detailed progress tracking and error reporting
+- New product fields (weight, color, sizes, key_features) are optional and enhance product information
 
 ## Troubleshooting
 
@@ -187,12 +218,14 @@ images_data/
 2. **Celery Worker**: Make sure the worker is running with `--pool=solo` on Windows
 3. **File Paths**: Verify all test images and videos exist in the correct paths
 4. **Environment**: Check that all required environment variables are set
+5. **Product Fields**: Ensure products.json includes the new optional fields if needed
 
 ### Debug Mode
 For detailed debugging, check the server logs for:
 - Celery worker status and task execution
 - Redis connection and progress updates
 - API endpoint responses and errors
+- Product field validation and processing
 
 ---
 For more advanced testing or automation, modify `api_test.py` as needed! 

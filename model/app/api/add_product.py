@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form, status, HTTPException
 from fastapi.responses import JSONResponse
-from typing import List
+from typing import List, Optional
 from app.core.db import get_products_collection
 from app.core.clip_utils import image_to_embedding
 from app.core.schemas import ErrorResponse
@@ -73,7 +73,11 @@ async def add_product(
     name: str = Form(..., description="Product name"),
     price: float = Form(..., description="Product price"),
     description: str = Form(..., description="Product description"),
-    category: str = Form(..., description="Product category")
+    category: str = Form(..., description="Product category"),
+    weight_kg: Optional[float] = Form(None, description="Product weight in kilograms"),
+    color: Optional[str] = Form(None, description="Product color (e.g., 'black', 'red')"),
+    sizes: Optional[str] = Form(None, description="Available sizes as JSON string (e.g., '[\"S\", \"M\", \"L\"]' or '[\"10\", \"11\", \"12\"]')"),
+    key_features: Optional[str] = Form(None, description="Key features as JSON string (e.g., '[\"124 Liters\", \"Environment Friendly Tech\", \"Low Noise\"]')")
 ):
     """Add a new product to the catalog. Deduplicates by image hash and embeds each image with CLIP."""
     
@@ -81,8 +85,36 @@ async def add_product(
     for image in images:
         validate_file(image, settings.MAX_FILE_SIZE, settings.ALLOWED_IMAGE_TYPES)
     
+    # Parse sizes if provided
+    parsed_sizes = None
+    if sizes:
+        try:
+            import json
+            parsed_sizes = json.loads(sizes)
+            if not isinstance(parsed_sizes, list):
+                raise ValueError("Sizes must be a JSON array")
+        except (json.JSONDecodeError, ValueError) as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid sizes format: {str(e)}. Expected JSON array like '[\"S\", \"M\", \"L\"]'"
+            )
+    
+    # Parse key_features if provided
+    parsed_key_features = None
+    if key_features:
+        try:
+            import json
+            parsed_key_features = json.loads(key_features)
+            if not isinstance(parsed_key_features, list):
+                raise ValueError("Key features must be a JSON array")
+        except (json.JSONDecodeError, ValueError) as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid key_features format: {str(e)}. Expected JSON array like '[\"124 Liters\", \"Environment Friendly Tech\"]'"
+            )
+    
     images_data = [await image.read() for image in images]
-    job = add_product_task.delay(images_data, name, price, description, category)
+    job = add_product_task.delay(images_data, name, price, description, category, weight_kg, color, parsed_sizes, parsed_key_features)
     return JSONResponse(
         status_code=202,
         content={"job_id": job.id, "status": "processing"}
